@@ -15,17 +15,17 @@
     <h2 class="mb-4">جدول درخواست‌ها</h2>
     <button id="reportBtn" class="btn btn-success mb-3">گزارش</button>
     <form id="requestForm" class="row g-3 mb-4">
-      <div class="col-md-3">
+      <div class="col-md-3 col-12">
         <input type="text" class="form-control" id="dateInput" name="date" placeholder="تاریخ" required
           autocomplete="off" style="border: 2px solid #007bff" />
       </div>
-      <div class="col-md-3">
+      <div class="col-md-3 col-12">
         <input type="text" class="form-control" name="customerName" placeholder="نام مشتری" required />
       </div>
-      <div class="col-md-3">
+      <div class="col-md-3 col-12">
         <input type="text" class="form-control" name="userName" placeholder="نام کاربر" required />
       </div>
-      <div class="col-md-3">
+      <div class="col-md-3 col-12">
         <select class="form-select" name="system" required>
           <option value="">سیستم</option>
           <option value="مالی">مالی</option>
@@ -35,16 +35,16 @@
           <option value="سامیار">سامیار</option>
         </select>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-3 col-12">
         <input type="text" class="form-control" name="request" placeholder="درخواست" required />
       </div>
-      <div class="col-md-3">
+      <div class="col-md-3 col-12">
         <input type="text" class="form-control" name="requestType" placeholder="نوع درخواست" required />
       </div>
-      <div class="col-md-3">
+      <div class="col-md-3 col-12">
         <input type="text" class="form-control" name="actionDescription" placeholder="شرح اقدام" required />
       </div>
-      <div class="col-md-3">
+      <div class="col-md-3 col-12">
         <select class="form-select" name="status" required>
           <option value="">وضعیت (بررسی)</option>
           <option value="انجام">انجام</option>
@@ -53,27 +53,29 @@
         </select>
       </div>
       <div class="col-12">
-        <button type="submit" class="btn btn-primary">ثبت درخواست</button>
+        <button type="submit" class="btn btn-primary mb-2 w-100">ثبت درخواست</button>
       </div>
     </form>
-    <table class="table table-bordered table-striped">
-      <thead class="table-dark">
-        <tr>
-          <th>تاریخ</th>
-          <th>نام مشتری</th>
-          <th>نام کاربر</th>
-          <th>سیستم</th>
-          <th>درخواست</th>
-          <th>نوع درخواست</th>
-          <th>شرح اقدام</th>
-          <th>وضعیت (بررسی)</th>
-          <th>ویرایش</th>
-        </tr>
-      </thead>
-      <tbody id="requestsTableBody">
-        <!-- Rows will be added here -->
-      </tbody>
-    </table>
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+          <tr>
+            <th>تاریخ</th>
+            <th>نام مشتری</th>
+            <th>نام کاربر</th>
+            <th>سیستم</th>
+            <th>درخواست</th>
+            <th>نوع درخواست</th>
+            <th>شرح اقدام</th>
+            <th>وضعیت (بررسی)</th>
+            <th>ویرایش</th>
+          </tr>
+        </thead>
+        <tbody id="requestsTableBody">
+          <!-- Rows will be added here -->
+        </tbody>
+      </table>
+    </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
   <script src="https://unpkg.com/jalali-moment/dist/jalali-moment.browser.js"></script>

@@ -1,34 +1,25 @@
-const axios = require("axios");
+const { Smsir } = require('smsir-js');
 
-// sms.ir API details
-const SMS_API_URL = "https://api.sms.ir/v1/send/verify";
-const SMS_API_KEY = "SkwCNidEz5ChWaLMKKnCn9Bhi2uYknj3Bu5QjvNmwddYAxwF";
-const USERS_PHONE_NUMBERS = ["30004802149089"]; // Add all user phone numbers here
+const SMS_API_KEY = 'xevIdRFFOQQKj6JeiXSHfXZCBpFWqzauoIc3uzQdeePUUe2q';
+const LINE_NUMBER = 30004802149089; // as a number, not string
+const USERS_PHONE_NUMBERS = ['09109924707']; // no +98, just 09...
+
+const smsir = new Smsir(SMS_API_KEY, LINE_NUMBER);
 
 async function sendSMSToAllUsers(message) {
-  for (const phone of USERS_PHONE_NUMBERS) {
-    try {
-      await axios.post(
-        SMS_API_URL,
-        {
-          mobile: phone.replace("+98", "0"), // sms.ir expects 09... format
-          templateId: 1, // Use a valid templateId or 1 for sandbox
-          parameters: [{ name: "code", value: message }],
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            "X-API-KEY": SMS_API_KEY,
-          },
-        }
-      );
-    } catch (err) {
-      console.error(
-        "SMS send error:",
-        err.response ? err.response.data : err.message
-      );
+  if (!message || !message.trim()) {
+    console.error('SMS.ir error: message is empty');
+    return;
+  }
+  try {
+    const res = await smsir.SendBulk(message, USERS_PHONE_NUMBERS, null, LINE_NUMBER);
+    if (res && res.status === 1) {
+      console.log('SMS.ir success:', res);
+    } else {
+      console.error('SMS.ir error:', res ? res.message : 'No response data', res);
     }
+  } catch (err) {
+    console.error('SMS send error:', err.response ? err.response.data : err.message);
   }
 }
 
