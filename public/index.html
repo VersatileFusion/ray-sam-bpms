@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>درخواست‌ها</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet" />
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css" />
+</head>
+
+<body class="bg-light">
+  <div class="container py-4">
+    <h2 class="mb-4">جدول درخواست‌ها</h2>
+    <button id="reportBtn" class="btn btn-success mb-3">گزارش</button>
+    <form id="requestForm" class="row g-3 mb-4">
+      <div class="col-md-3">
+        <input type="text" class="form-control" id="dateInput" name="date" placeholder="تاریخ" required
+          autocomplete="off" style="border: 2px solid #007bff" />
+      </div>
+      <div class="col-md-3">
+        <input type="text" class="form-control" name="customerName" placeholder="نام مشتری" required />
+      </div>
+      <div class="col-md-3">
+        <input type="text" class="form-control" name="userName" placeholder="نام کاربر" required />
+      </div>
+      <div class="col-md-3">
+        <select class="form-select" name="system" required>
+          <option value="">سیستم</option>
+          <option value="مالی">مالی</option>
+          <option value="انبار">انبار</option>
+          <option value="فروش">فروش</option>
+          <option value="دریافت و پرداخت">دریافت و پرداخت</option>
+          <option value="سامیار">سامیار</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <input type="text" class="form-control" name="request" placeholder="درخواست" required />
+      </div>
+      <div class="col-md-3">
+        <input type="text" class="form-control" name="requestType" placeholder="نوع درخواست" required />
+      </div>
+      <div class="col-md-3">
+        <input type="text" class="form-control" name="actionDescription" placeholder="شرح اقدام" required />
+      </div>
+      <div class="col-md-3">
+        <select class="form-select" name="status" required>
+          <option value="">وضعیت (بررسی)</option>
+          <option value="انجام">انجام</option>
+          <option value="باز">باز</option>
+          <option value="در درست اقدام">در درست اقدام</option>
+        </select>
+      </div>
+      <div class="col-12">
+        <button type="submit" class="btn btn-primary">ثبت درخواست</button>
+      </div>
+    </form>
+    <table class="table table-bordered table-striped">
+      <thead class="table-dark">
+        <tr>
+          <th>تاریخ</th>
+          <th>نام مشتری</th>
+          <th>نام کاربر</th>
+          <th>سیستم</th>
+          <th>درخواست</th>
+          <th>نوع درخواست</th>
+          <th>شرح اقدام</th>
+          <th>وضعیت (بررسی)</th>
+          <th>ویرایش</th>
+        </tr>
+      </thead>
+      <tbody id="requestsTableBody">
+        <!-- Rows will be added here -->
+      </tbody>
+    </table>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+  <script src="https://unpkg.com/jalali-moment/dist/jalali-moment.browser.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    let allRequests = [];
+    async function loadRequests() {
+      const res = await fetch("/api/requests");
+      const requests = await res.json();
+      allRequests = requests;
+      const tbody = document.getElementById("requestsTableBody");
+      tbody.innerHTML = "";
+      requests.forEach(r => {
+        // Convert Gregorian date to Jalali for display
+        const jalaliDate = moment(r.date, 'YYYY-MM-DD').locale('fa').format('YYYY/MM/DD');
+        let statusClass = '';
+        if (r.status === 'باز') statusClass = 'bg-danger text-white';
+        else if (r.status === 'در درست اقدام') statusClass = 'bg-warning text-dark';
+        else if (r.status === 'انجام') statusClass = 'bg-success text-white';
+        tbody.innerHTML += `
+            <tr>
+              <td>${jalaliDate}</td>
+              <td>${r.customerName}</td>
+              <td>${r.userName}</td>
+              <td>${r.system}</td>
+              <td>${r.request}</td>
+              <td>${r.requestType}</td>
+              <td>${r.actionDescription}</td>
+              <td class='${statusClass}'>${r.status}</td>
+              <td><button class='btn btn-sm btn-warning edit-btn' data-id='${r._id}'>ویرایش</button></td>
+            </tr>
+          `;
+      });
+      // Attach edit event listeners
+      document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', async function () {
+          const id = this.getAttribute('data-id');
+          // Find the row data
+          const req = requests.find(x => x._id === id);
+          const { value: formValues } = await Swal.fire({
+            title: 'ویرایش درخواست',
+            html:
+              `<input id='swal-date' class='swal2-input' placeholder='تاریخ' value='${moment(req.date, 'YYYY-MM-DD').locale('fa').format('YYYY/MM/DD')}'><br>` +
+              `<input id='swal-customerName' class='swal2-input' placeholder='نام مشتری' value='${req.customerName}'><br>` +
+              `<input id='swal-userName' class='swal2-input' placeholder='نام کاربر' value='${req.userName}'><br>` +
+              `<select id='swal-system' class='swal2-input'><option value='مالی'>مالی</option><option value='انبار'>انبار</option><option value='فروش'>فروش</option><option value='دریافت و پرداخت'>دریافت و پرداخت</option><option value='سامیار'>سامیار</option></select><br>` +
+              `<input id='swal-request' class='swal2-input' placeholder='درخواست' value='${req.request}'><br>` +
+              `<input id='swal-requestType' class='swal2-input' placeholder='نوع درخواست' value='${req.requestType}'><br>` +
+              `<input id='swal-actionDescription' class='swal2-input' placeholder='شرح اقدام' value='${req.actionDescription}'><br>` +
+              `<select id='swal-status' class='swal2-input'><option value='انجام'>انجام</option><option value='باز'>باز</option><option value='در درست اقدام'>در درست اقدام</option></select>`,
+            focusConfirm: false,
+            didOpen: () => {
+              document.getElementById('swal-system').value = req.system;
+              document.getElementById('swal-status').value = req.status;
+            },
+            preConfirm: () => {
+              return [
+                document.getElementById('swal-date').value,
+                document.getElementById('swal-customerName').value,
+                document.getElementById('swal-userName').value,
+                document.getElementById('swal-system').value,
+                document.getElementById('swal-request').value,
+                document.getElementById('swal-requestType').value,
+                document.getElementById('swal-actionDescription').value,
+                document.getElementById('swal-status').value
+              ];
+            }
+          });
+          if (formValues) {
+            // Convert Jalali date to Gregorian for backend
+            const gregorianDate = moment.from(formValues[0], 'fa', 'YYYY/MM/DD').locale('en').format('YYYY-MM-DD');
+            const updatedData = {
+              date: gregorianDate,
+              customerName: formValues[1],
+              userName: formValues[2],
+              system: formValues[3],
+              request: formValues[4],
+              requestType: formValues[5],
+              actionDescription: formValues[6],
+              status: formValues[7]
+            };
+            const res = await fetch(`/api/requests/${id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(updatedData)
+            });
+            if (res.ok) {
+              Swal.fire({ icon: 'success', title: 'ویرایش شد', text: 'درخواست با موفقیت ویرایش شد!' });
+              loadRequests();
+            } else {
+              Swal.fire({ icon: 'error', title: 'خطا', text: 'ویرایش انجام نشد!' });
+            }
+          }
+        });
+      });
+    }
+    $(document).ready(function () {
+      // Set today's Jalali date on page load
+      var todayJalali = moment().locale("fa").format("YYYY/MM/DD");
+      $("#dateInput").val(todayJalali);
+      loadRequests();
+    });
+    document
+      .getElementById("requestForm")
+      .addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const form = e.target;
+        const data = {
+          date: form.date.value,
+          customerName: form.customerName.value,
+          userName: form.userName.value,
+          system: form.system.value,
+          request: form.request.value,
+          requestType: form.requestType.value,
+          actionDescription: form.actionDescription.value,
+          status: form.status.value,
+        };
+        const res = await fetch("/api/requests", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        if (res.ok) {
+          Swal.fire({
+            icon: 'success',
+            title: 'موفق!',
+            text: 'درخواست با موفقیت ثبت شد!'
+          });
+          form.reset();
+          // Set today's Jalali date again after reset
+          $("#dateInput").val(moment().locale("fa").format("YYYY/MM/DD"));
+          loadRequests();
+        } else {
+          const err = await res.json();
+          Swal.fire({
+            icon: 'error',
+            title: 'خطا',
+            text: err.message || "خطا در ثبت درخواست"
+          });
+        }
+      });
+    // Report button logic
+    document.addEventListener('DOMContentLoaded', function () {
+      document.getElementById('reportBtn').addEventListener('click', async function () {
+        const { value: formValues } = await Swal.fire({
+          title: 'فیلتر گزارش',
+          html:
+            `<input id='filter-date' class='swal2-input' placeholder='تاریخ (مثال: 1404/04/22)'><br>` +
+            `<input id='filter-customerName' class='swal2-input' placeholder='نام مشتری'><br>` +
+            `<input id='filter-userName' class='swal2-input' placeholder='نام کاربر'><br>` +
+            `<select id='filter-system' class='swal2-input'><option value=''>سیستم</option><option value='مالی'>مالی</option><option value='انبار'>انبار</option><option value='فروش'>فروش</option><option value='دریافت و پرداخت'>دریافت و پرداخت</option><option value='سامیار'>سامیار</option></select><br>` +
+            `<input id='filter-request' class='swal2-input' placeholder='درخواست'><br>` +
+            `<input id='filter-requestType' class='swal2-input' placeholder='نوع درخواست'><br>` +
+            `<input id='filter-actionDescription' class='swal2-input' placeholder='شرح اقدام'><br>` +
+            `<select id='filter-status' class='swal2-input'><option value=''>وضعیت (بررسی)</option><option value='انجام'>انجام</option><option value='باز'>باز</option><option value='در درست اقدام'>در درست اقدام</option></select>`,
+          focusConfirm: false,
+          preConfirm: () => {
+            return [
+              document.getElementById('filter-date').value,
+              document.getElementById('filter-customerName').value,
+              document.getElementById('filter-userName').value,
+              document.getElementById('filter-system').value,
+              document.getElementById('filter-request').value,
+              document.getElementById('filter-requestType').value,
+              document.getElementById('filter-actionDescription').value,
+              document.getElementById('filter-status').value
+            ];
+          },
+          showCancelButton: true
+        });
+        if (!formValues) return;
+        // Filter rows by all fields (ignore empty fields)
+        const filtered = allRequests.filter(r => {
+          // تاریخ: convert Gregorian to Jalali for comparison
+          const jalaliDate = moment(r.date, 'YYYY-MM-DD').locale('fa').format('YYYY/MM/DD');
+          return (
+            (!formValues[0] || jalaliDate === formValues[0]) &&
+            (!formValues[1] || (r.customerName || '').includes(formValues[1])) &&
+            (!formValues[2] || (r.userName || '').includes(formValues[2])) &&
+            (!formValues[3] || r.system === formValues[3]) &&
+            (!formValues[4] || (r.request || '').includes(formValues[4])) &&
+            (!formValues[5] || (r.requestType || '').includes(formValues[5])) &&
+            (!formValues[6] || (r.actionDescription || '').includes(formValues[6])) &&
+            (!formValues[7] || r.status === formValues[7])
+          );
+        });
+        if (filtered.length === 0) {
+          Swal.fire({ icon: 'info', title: 'یافت نشد', text: 'هیچ داده‌ای با این فیلتر یافت نشد.' });
+          return;
+        }
+        // Prepare data for Excel (all columns)
+        const excelData = filtered.map(r => ({
+          'تاریخ': moment(r.date, 'YYYY-MM-DD').locale('fa').format('YYYY/MM/DD'),
+          'نام مشتری': r.customerName,
+          'نام کاربر': r.userName,
+          'سیستم': r.system,
+          'درخواست': r.request,
+          'نوع درخواست': r.requestType,
+          'شرح اقدام': r.actionDescription,
+          'وضعیت': r.status
+        }));
+        const ws = XLSX.utils.json_to_sheet(excelData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'گزارش');
+        XLSX.writeFile(wb, 'report.xlsx');
+      });
+    });
+  </script>
+</body>
+
+</html>
