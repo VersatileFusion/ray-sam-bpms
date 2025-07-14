@@ -8,73 +8,347 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet" />
   <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn-font@v33.003/dist/font-face.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1a237e;
+      /* deep blue */
+      --secondary: #455a64;
+      /* blue gray */
+      --success: #388e3c;
+      --danger: #c62828;
+      --warning: #f9a825;
+      --info: #1976d2;
+      --border: #e0e0e0;
+      --bg: #f5f6fa;
+      --card-bg: #fff;
+      --text: #222;
+      --muted: #6b7280;
+    }
+
+    body {
+      background: var(--bg);
+      min-height: 100vh;
+      font-family: Vazirmatn, sans-serif !important;
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      font-feature-settings: "ss01" on, "ss02" on;
+    }
+
+    .main-center {
+      width: 100%;
+      max-width: 1100px;
+      margin: 2rem auto;
+    }
+
+    .glass-card {
+      background: var(--card-bg);
+      box-shadow: 0 2px 8px rgba(44, 62, 80, 0.06);
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+      margin: 2rem 0;
+      transition: box-shadow 0.3s;
+    }
+
+    .card-header {
+      border-radius: 0.75rem 0.75rem 0 0;
+      background: var(--primary);
+      color: #fff;
+      font-size: 1.15rem;
+      font-weight: 700;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      box-shadow: none;
+    }
+
+    .table thead th {
+      background: var(--primary);
+      color: #fff;
+      font-size: 1.05rem;
+      font-family: Vazirmatn, sans-serif;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .table {
+      background: var(--card-bg);
+      color: var(--text);
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+      font-size: 1rem;
+    }
+
+    .table td,
+    .table th {
+      border: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .swal2-popup.glass-card {
+      background: #fff !important;
+      border-radius: 0.75rem !important;
+      box-shadow: 0 2px 8px rgba(44, 62, 80, 0.10) !important;
+      border: 1px solid var(--border) !important;
+      color: var(--text) !important;
+      font-family: Vazirmatn, sans-serif !important;
+    }
+
+    .swal2-html-container {
+      font-family: Vazirmatn, sans-serif !important;
+      font-size: 1.05rem;
+      color: var(--text) !important;
+      background: none;
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.5rem;
+      margin: 0.5rem 0 0.5rem 0;
+      box-shadow: none;
+      text-align: right;
+      direction: rtl;
+      border: none;
+    }
+
+    .swal2-actions {
+      margin-top: 1.2rem !important;
+      gap: 0.75rem;
+      justify-content: center;
+    }
+
+    .swal2-actions .swal2-confirm {
+      background: var(--primary) !important;
+      color: #fff !important;
+      border: none !important;
+      border-radius: 0.5rem !important;
+      font-weight: 700;
+      font-family: Vazirmatn, sans-serif !important;
+      font-size: 1.05rem;
+      box-shadow: none;
+      padding: 0.5rem 2.2rem;
+      transition: background 0.2s;
+    }
+
+    .swal2-actions .swal2-confirm:hover,
+    .swal2-actions .swal2-confirm:focus {
+      background: var(--secondary) !important;
+    }
+
+    .swal2-actions .swal2-cancel {
+      background: var(--muted) !important;
+      color: #fff !important;
+      border: none !important;
+      border-radius: 0.5rem !important;
+      font-weight: 700;
+      font-family: Vazirmatn, sans-serif !important;
+      font-size: 1.05rem;
+      box-shadow: none;
+      padding: 0.5rem 2.2rem;
+      transition: background 0.2s;
+    }
+
+    .swal2-actions .swal2-cancel:hover,
+    .swal2-actions .swal2-cancel:focus {
+      background: #444 !important;
+    }
+
+    .form-control,
+    .form-select {
+      border-radius: 0.5rem;
+      border: 1.5px solid var(--border);
+      background: #fafbfc;
+      font-weight: 500;
+      font-family: Vazirmatn, sans-serif;
+      font-size: 1rem;
+      transition: border 0.2s;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: var(--primary);
+      background: #fff;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 0.5rem;
+      font-size: 1.05rem;
+      padding: 0.5rem 1.5rem;
+      box-shadow: none;
+      transition: background 0.2s;
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus {
+      background: var(--secondary);
+      color: #fff;
+    }
+
+    .btn-success {
+      background: var(--success);
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 0.5rem;
+      font-size: 1.05rem;
+      padding: 0.5rem 1.5rem;
+      box-shadow: none;
+      transition: background 0.2s;
+    }
+
+    .btn-success:hover,
+    .btn-success:focus {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-warning {
+      background: var(--warning);
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 0.5rem;
+      font-size: 1.05rem;
+      padding: 0.5rem 1.5rem;
+      box-shadow: none;
+      transition: background 0.2s;
+    }
+
+    .btn-warning:hover,
+    .btn-warning:focus {
+      background: var(--secondary);
+      color: #fff;
+    }
+
+    .fab {
+      display: none;
+    }
+
+    .avatar-initials {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--secondary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-left: 0.5rem;
+      box-shadow: none;
+    }
+
+    /* Status colors */
+    .bg-danger {
+      background: var(--danger) !important;
+      color: #fff !important;
+    }
+
+    .bg-warning {
+      background: var(--warning) !important;
+      color: #fff !important;
+    }
+
+    .bg-success {
+      background: var(--success) !important;
+      color: #fff !important;
+    }
+  </style>
 </head>
 
-<body class="bg-light">
-  <div class="container py-4">
-    <h2 class="mb-4">جدول درخواست‌ها</h2>
-    <button id="reportBtn" class="btn btn-success mb-3">گزارش</button>
-    <form id="requestForm" class="row g-3 mb-4">
-      <div class="col-md-3 col-12">
-        <input type="text" class="form-control" id="dateInput" name="date" placeholder="تاریخ" required
-          autocomplete="off" style="border: 2px solid #007bff" />
+<body>
+  <div class="main-center">
+    <div class="glass-card mb-4">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <h4 class="mb-0">
+          <i class="bi bi-plus-circle"></i> ثبت درخواست جدید
+        </h4>
+        <!-- Removed dark mode toggle button -->
       </div>
-      <div class="col-md-3 col-12">
-        <input type="text" class="form-control" name="customerName" placeholder="نام مشتری" required />
+      <div class="card-body">
+        <form id="requestForm" class="row g-3 mb-4">
+          <div class="col-md-3 col-12">
+            <input type="text" class="form-control" id="dateInput" name="date" placeholder="تاریخ" required
+              autocomplete="off" style="border: 2px solid #007bff" />
+          </div>
+          <div class="col-md-3 col-12">
+            <input type="text" class="form-control" name="customerName" placeholder="نام مشتری" required />
+          </div>
+          <div class="col-md-3 col-12">
+            <input type="text" class="form-control" name="userName" placeholder="نام کاربر" required />
+          </div>
+          <div class="col-md-3 col-12">
+            <select class="form-select" name="system" required>
+              <option value="">سیستم</option>
+              <option value="مالی">مالی</option>
+              <option value="انبار">انبار</option>
+              <option value="فروش">فروش</option>
+              <option value="دریافت و پرداخت">دریافت و پرداخت</option>
+              <option value="سامیار">سامیار</option>
+            </select>
+          </div>
+          <div class="col-md-3 col-12">
+            <input type="text" class="form-control" name="request" placeholder="درخواست" required />
+          </div>
+          <div class="col-md-3 col-12">
+            <input type="text" class="form-control" name="requestType" placeholder="نوع درخواست" required />
+          </div>
+          <div class="col-md-3 col-12">
+            <input type="text" class="form-control" name="actionDescription" placeholder="شرح اقدام" required />
+          </div>
+          <div class="col-md-3 col-12">
+            <select class="form-select" name="status" required>
+              <option value="">وضعیت (بررسی)</option>
+              <option value="انجام">انجام</option>
+              <option value="باز">باز</option>
+              <option value="در درست اقدام">در درست اقدام</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary mb-2 w-100">
+              <i class="bi bi-send"></i> ثبت درخواست
+            </button>
+          </div>
+        </form>
       </div>
-      <div class="col-md-3 col-12">
-        <input type="text" class="form-control" name="userName" placeholder="نام کاربر" required />
+    </div>
+    <div class="glass-card mb-4">
+      <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="bi bi-table"></i> جدول درخواست‌ها</h4>
+        <button id="reportBtn" class="btn btn-success">
+          <i class="bi bi-file-earmark-excel"></i> گزارش
+        </button>
       </div>
-      <div class="col-md-3 col-12">
-        <select class="form-select" name="system" required>
-          <option value="">سیستم</option>
-          <option value="مالی">مالی</option>
-          <option value="انبار">انبار</option>
-          <option value="فروش">فروش</option>
-          <option value="دریافت و پرداخت">دریافت و پرداخت</option>
-          <option value="سامیار">سامیار</option>
-        </select>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped table-hover mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th>تاریخ</th>
+                <th>نام مشتری</th>
+                <th>نام کاربر</th>
+                <th>سیستم</th>
+                <th>درخواست</th>
+                <th>نوع درخواست</th>
+                <th>شرح اقدام</th>
+                <th>وضعیت (بررسی)</th>
+                <th>ویرایش</th>
+              </tr>
+            </thead>
+            <tbody id="requestsTableBody">
+              <!-- Rows will be added here -->
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div class="col-md-3 col-12">
-        <input type="text" class="form-control" name="request" placeholder="درخواست" required />
-      </div>
-      <div class="col-md-3 col-12">
-        <input type="text" class="form-control" name="requestType" placeholder="نوع درخواست" required />
-      </div>
-      <div class="col-md-3 col-12">
-        <input type="text" class="form-control" name="actionDescription" placeholder="شرح اقدام" required />
-      </div>
-      <div class="col-md-3 col-12">
-        <select class="form-select" name="status" required>
-          <option value="">وضعیت (بررسی)</option>
-          <option value="انجام">انجام</option>
-          <option value="باز">باز</option>
-          <option value="در درست اقدام">در درست اقدام</option>
-        </select>
-      </div>
-      <div class="col-12">
-        <button type="submit" class="btn btn-primary mb-2 w-100">ثبت درخواست</button>
-      </div>
-    </form>
-    <div class="table-responsive">
-      <table class="table table-bordered table-striped">
-        <thead class="table-dark">
-          <tr>
-            <th>تاریخ</th>
-            <th>نام مشتری</th>
-            <th>نام کاربر</th>
-            <th>سیستم</th>
-            <th>درخواست</th>
-            <th>نوع درخواست</th>
-            <th>شرح اقدام</th>
-            <th>وضعیت (بررسی)</th>
-            <th>ویرایش</th>
-          </tr>
-        </thead>
-        <tbody id="requestsTableBody">
-          <!-- Rows will be added here -->
-        </tbody>
-      </table>
+    </div>
+    <div class="fab" id="fabAdd" title="افزودن درخواست جدید">
+      <i class="bi bi-plus-lg"></i>
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
@@ -89,15 +363,19 @@
       allRequests = requests;
       const tbody = document.getElementById("requestsTableBody");
       tbody.innerHTML = "";
-      requests.forEach(r => {
+      requests.forEach((r) => {
         // Convert Gregorian date to Jalali for display
-        const jalaliDate = moment(r.date, 'YYYY-MM-DD').locale('fa').format('YYYY/MM/DD');
-        let statusClass = '';
-        if (r.status === 'باز') statusClass = 'bg-danger text-white';
-        else if (r.status === 'در درست اقدام') statusClass = 'bg-warning text-dark';
-        else if (r.status === 'انجام') statusClass = 'bg-success text-white';
+        const jalaliDate = moment(r.date, "YYYY-MM-DD")
+          .locale("fa")
+          .format("YYYY/MM/DD");
+        let statusClass = "";
+        if (r.status === "باز") statusClass = "bg-danger text-white";
+        else if (r.status === "در درست اقدام")
+          statusClass = "bg-warning text-dark";
+        else if (r.status === "انجام") statusClass = "bg-success text-white";
+        // User initials avatar (removed)
         tbody.innerHTML += `
-            <tr>
+            <tr class="fade-in-row">
               <td>${jalaliDate}</td>
               <td>${r.customerName}</td>
               <td>${r.userName}</td>
@@ -106,20 +384,25 @@
               <td>${r.requestType}</td>
               <td>${r.actionDescription}</td>
               <td class='${statusClass}'>${r.status}</td>
-              <td><button class='btn btn-sm btn-warning edit-btn' data-id='${r._id}'>ویرایش</button></td>
+              <td><button class='btn btn-sm btn-warning edit-btn' data-id='${r._id}'><i class="bi bi-pencil-square"></i> ویرایش</button></td>
             </tr>
           `;
       });
       // Attach edit event listeners
-      document.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.addEventListener('click', async function () {
-          const id = this.getAttribute('data-id');
+      document.querySelectorAll(".edit-btn").forEach((btn) => {
+        btn.addEventListener("click", async function () {
+          const id = this.getAttribute("data-id");
           // Find the row data
-          const req = requests.find(x => x._id === id);
+          const req = requests.find((x) => x._id === id);
           const { value: formValues } = await Swal.fire({
-            title: 'ویرایش درخواست',
+            title: "ویرایش درخواست",
             html:
-              `<input id='swal-date' class='swal2-input' placeholder='تاریخ' value='${moment(req.date, 'YYYY-MM-DD').locale('fa').format('YYYY/MM/DD')}'><br>` +
+              `<input id='swal-date' class='swal2-input' placeholder='تاریخ' value='${moment(
+                req.date,
+                "YYYY-MM-DD"
+              )
+                .locale("fa")
+                .format("YYYY/MM/DD")}'><br>` +
               `<input id='swal-customerName' class='swal2-input' placeholder='نام مشتری' value='${req.customerName}'><br>` +
               `<input id='swal-userName' class='swal2-input' placeholder='نام کاربر' value='${req.userName}'><br>` +
               `<select id='swal-system' class='swal2-input'><option value='مالی'>مالی</option><option value='انبار'>انبار</option><option value='فروش'>فروش</option><option value='دریافت و پرداخت'>دریافت و پرداخت</option><option value='سامیار'>سامیار</option></select><br>` +
@@ -129,25 +412,28 @@
               `<select id='swal-status' class='swal2-input'><option value='انجام'>انجام</option><option value='باز'>باز</option><option value='در درست اقدام'>در درست اقدام</option></select>`,
             focusConfirm: false,
             didOpen: () => {
-              document.getElementById('swal-system').value = req.system;
-              document.getElementById('swal-status').value = req.status;
+              document.getElementById("swal-system").value = req.system;
+              document.getElementById("swal-status").value = req.status;
             },
             preConfirm: () => {
               return [
-                document.getElementById('swal-date').value,
-                document.getElementById('swal-customerName').value,
-                document.getElementById('swal-userName').value,
-                document.getElementById('swal-system').value,
-                document.getElementById('swal-request').value,
-                document.getElementById('swal-requestType').value,
-                document.getElementById('swal-actionDescription').value,
-                document.getElementById('swal-status').value
+                document.getElementById("swal-date").value,
+                document.getElementById("swal-customerName").value,
+                document.getElementById("swal-userName").value,
+                document.getElementById("swal-system").value,
+                document.getElementById("swal-request").value,
+                document.getElementById("swal-requestType").value,
+                document.getElementById("swal-actionDescription").value,
+                document.getElementById("swal-status").value,
               ];
-            }
+            },
           });
           if (formValues) {
             // Convert Jalali date to Gregorian for backend
-            const gregorianDate = moment.from(formValues[0], 'fa', 'YYYY/MM/DD').locale('en').format('YYYY-MM-DD');
+            const gregorianDate = moment
+              .from(formValues[0], "fa", "YYYY/MM/DD")
+              .locale("en")
+              .format("YYYY-MM-DD");
             const updatedData = {
               date: gregorianDate,
               customerName: formValues[1],
@@ -156,18 +442,26 @@
               request: formValues[4],
               requestType: formValues[5],
               actionDescription: formValues[6],
-              status: formValues[7]
+              status: formValues[7],
             };
             const res = await fetch(`/api/requests/${id}`, {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(updatedData)
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(updatedData),
             });
             if (res.ok) {
-              Swal.fire({ icon: 'success', title: 'ویرایش شد', text: 'درخواست با موفقیت ویرایش شد!' });
+              Swal.fire({
+                icon: "success",
+                title: "ویرایش شد",
+                text: "درخواست با موفقیت ویرایش شد!",
+              });
               loadRequests();
             } else {
-              Swal.fire({ icon: 'error', title: 'خطا', text: 'ویرایش انجام نشد!' });
+              Swal.fire({
+                icon: "error",
+                title: "خطا",
+                text: "ویرایش انجام نشد!",
+              });
             }
           }
         });
@@ -201,9 +495,15 @@
         });
         if (res.ok) {
           Swal.fire({
-            icon: 'success',
-            title: 'موفق!',
-            text: 'درخواست با موفقیت ثبت شد!'
+            toast: true,
+            position: "top-end",
+            icon: "success",
+            title: "درخواست با موفقیت ثبت شد!",
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            background: "rgba(255,255,255,0.95)",
+            customClass: { popup: "glass-card" },
           });
           form.reset();
           // Set today's Jalali date again after reset
@@ -212,78 +512,110 @@
         } else {
           const err = await res.json();
           Swal.fire({
-            icon: 'error',
-            title: 'خطا',
-            text: err.message || "خطا در ثبت درخواست"
+            toast: true,
+            position: "top-end",
+            icon: "error",
+            title: err.message || "خطا در ثبت درخواست",
+            showConfirmButton: false,
+            timer: 2500,
+            timerProgressBar: true,
+            background: "rgba(255,255,255,0.95)",
+            customClass: { popup: "glass-card" },
           });
         }
       });
     // Report button logic
-    document.addEventListener('DOMContentLoaded', function () {
-      document.getElementById('reportBtn').addEventListener('click', async function () {
-        const { value: formValues } = await Swal.fire({
-          title: 'فیلتر گزارش',
-          html:
-            `<input id='filter-date' class='swal2-input' placeholder='تاریخ (مثال: 1404/04/22)'><br>` +
-            `<input id='filter-customerName' class='swal2-input' placeholder='نام مشتری'><br>` +
-            `<input id='filter-userName' class='swal2-input' placeholder='نام کاربر'><br>` +
-            `<select id='filter-system' class='swal2-input'><option value=''>سیستم</option><option value='مالی'>مالی</option><option value='انبار'>انبار</option><option value='فروش'>فروش</option><option value='دریافت و پرداخت'>دریافت و پرداخت</option><option value='سامیار'>سامیار</option></select><br>` +
-            `<input id='filter-request' class='swal2-input' placeholder='درخواست'><br>` +
-            `<input id='filter-requestType' class='swal2-input' placeholder='نوع درخواست'><br>` +
-            `<input id='filter-actionDescription' class='swal2-input' placeholder='شرح اقدام'><br>` +
-            `<select id='filter-status' class='swal2-input'><option value=''>وضعیت (بررسی)</option><option value='انجام'>انجام</option><option value='باز'>باز</option><option value='در درست اقدام'>در درست اقدام</option></select>`,
-          focusConfirm: false,
-          preConfirm: () => {
-            return [
-              document.getElementById('filter-date').value,
-              document.getElementById('filter-customerName').value,
-              document.getElementById('filter-userName').value,
-              document.getElementById('filter-system').value,
-              document.getElementById('filter-request').value,
-              document.getElementById('filter-requestType').value,
-              document.getElementById('filter-actionDescription').value,
-              document.getElementById('filter-status').value
-            ];
-          },
-          showCancelButton: true
+    document.addEventListener("DOMContentLoaded", function () {
+      document
+        .getElementById("reportBtn")
+        .addEventListener("click", async function () {
+          const { value: formValues } = await Swal.fire({
+            title: "فیلتر گزارش",
+            html:
+              `<input id='filter-date' class='swal2-input' placeholder='تاریخ (مثال: 1404/04/22)'><br>` +
+              `<input id='filter-customerName' class='swal2-input' placeholder='نام مشتری'><br>` +
+              `<input id='filter-userName' class='swal2-input' placeholder='نام کاربر'><br>` +
+              `<select id='filter-system' class='swal2-input'><option value=''>سیستم</option><option value='مالی'>مالی</option><option value='انبار'>انبار</option><option value='فروش'>فروش</option><option value='دریافت و پرداخت'>دریافت و پرداخت</option><option value='سامیار'>سامیار</option></select><br>` +
+              `<input id='filter-request' class='swal2-input' placeholder='درخواست'><br>` +
+              `<input id='filter-requestType' class='swal2-input' placeholder='نوع درخواست'><br>` +
+              `<input id='filter-actionDescription' class='swal2-input' placeholder='شرح اقدام'><br>` +
+              `<select id='filter-status' class='swal2-input'><option value=''>وضعیت (بررسی)</option><option value='انجام'>انجام</option><option value='باز'>باز</option><option value='در درست اقدام'>در درست اقدام</option></select>`,
+            focusConfirm: false,
+            preConfirm: () => {
+              return [
+                document.getElementById("filter-date").value,
+                document.getElementById("filter-customerName").value,
+                document.getElementById("filter-userName").value,
+                document.getElementById("filter-system").value,
+                document.getElementById("filter-request").value,
+                document.getElementById("filter-requestType").value,
+                document.getElementById("filter-actionDescription").value,
+                document.getElementById("filter-status").value,
+              ];
+            },
+            showCancelButton: true,
+          });
+          if (!formValues) return;
+          // Filter rows by all fields (ignore empty fields)
+          const filtered = allRequests.filter((r) => {
+            // تاریخ: convert Gregorian to Jalali for comparison
+            const jalaliDate = moment(r.date, "YYYY-MM-DD")
+              .locale("fa")
+              .format("YYYY/MM/DD");
+            return (
+              (!formValues[0] || jalaliDate === formValues[0]) &&
+              (!formValues[1] ||
+                (r.customerName || "").includes(formValues[1])) &&
+              (!formValues[2] ||
+                (r.userName || "").includes(formValues[2])) &&
+              (!formValues[3] || r.system === formValues[3]) &&
+              (!formValues[4] || (r.request || "").includes(formValues[4])) &&
+              (!formValues[5] ||
+                (r.requestType || "").includes(formValues[5])) &&
+              (!formValues[6] ||
+                (r.actionDescription || "").includes(formValues[6])) &&
+              (!formValues[7] || r.status === formValues[7])
+            );
+          });
+          if (filtered.length === 0) {
+            Swal.fire({
+              icon: "info",
+              title: "یافت نشد",
+              text: "هیچ داده‌ای با این فیلتر یافت نشد.",
+            });
+            return;
+          }
+          // Prepare data for Excel (all columns)
+          const excelData = filtered.map((r) => ({
+            تاریخ: moment(r.date, "YYYY-MM-DD")
+              .locale("fa")
+              .format("YYYY/MM/DD"),
+            "نام مشتری": r.customerName,
+            "نام کاربر": r.userName,
+            سیستم: r.system,
+            درخواست: r.request,
+            "نوع درخواست": r.requestType,
+            "شرح اقدام": r.actionDescription,
+            وضعیت: r.status,
+          }));
+          const ws = XLSX.utils.json_to_sheet(excelData);
+          const wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, "گزارش");
+          XLSX.writeFile(wb, "report.xlsx");
         });
-        if (!formValues) return;
-        // Filter rows by all fields (ignore empty fields)
-        const filtered = allRequests.filter(r => {
-          // تاریخ: convert Gregorian to Jalali for comparison
-          const jalaliDate = moment(r.date, 'YYYY-MM-DD').locale('fa').format('YYYY/MM/DD');
-          return (
-            (!formValues[0] || jalaliDate === formValues[0]) &&
-            (!formValues[1] || (r.customerName || '').includes(formValues[1])) &&
-            (!formValues[2] || (r.userName || '').includes(formValues[2])) &&
-            (!formValues[3] || r.system === formValues[3]) &&
-            (!formValues[4] || (r.request || '').includes(formValues[4])) &&
-            (!formValues[5] || (r.requestType || '').includes(formValues[5])) &&
-            (!formValues[6] || (r.actionDescription || '').includes(formValues[6])) &&
-            (!formValues[7] || r.status === formValues[7])
-          );
-        });
-        if (filtered.length === 0) {
-          Swal.fire({ icon: 'info', title: 'یافت نشد', text: 'هیچ داده‌ای با این فیلتر یافت نشد.' });
-          return;
-        }
-        // Prepare data for Excel (all columns)
-        const excelData = filtered.map(r => ({
-          'تاریخ': moment(r.date, 'YYYY-MM-DD').locale('fa').format('YYYY/MM/DD'),
-          'نام مشتری': r.customerName,
-          'نام کاربر': r.userName,
-          'سیستم': r.system,
-          'درخواست': r.request,
-          'نوع درخواست': r.requestType,
-          'شرح اقدام': r.actionDescription,
-          'وضعیت': r.status
-        }));
-        const ws = XLSX.utils.json_to_sheet(excelData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'گزارش');
-        XLSX.writeFile(wb, 'report.xlsx');
-      });
     });
+    // Floating Action Button for Add
+    document.getElementById("fabAdd").onclick = function () {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      document.getElementById("dateInput").focus();
+    };
+    // Set SweetAlert2 default button texts to Persian
+    if (window.Swal) {
+      Swal.mixin({
+        confirmButtonText: "تایید",
+        cancelButtonText: "انصراف",
+      });
+    }
   </script>
 </body>
 
