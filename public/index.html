@@ -277,7 +277,57 @@
               autocomplete="off" style="border: 2px solid #007bff" />
           </div>
           <div class="col-md-3 col-12">
-            <input type="text" class="form-control" name="customerName" placeholder="نام مشتری" required />
+            <select class="form-select" name="customerName" required>
+              <option value="">نام مشتری</option>
+              <option value="دریانورد">دریانورد</option>
+              <option value="رادین پارسه اروند">رادین پارسه اروند</option>
+              <option value="محمد مهدی خجسته">محمد مهدی خجسته</option>
+              <option value="آرون صنعت شیمی">آرون صنعت شیمی</option>
+              <option value="زهرا اسماعیلی">زهرا اسماعیلی</option>
+              <option value="امان اله رییسی">امان اله رییسی</option>
+              <option value="شرکت ویرا مهر">شرکت ویرا مهر</option>
+              <option value="تجارت گستر آریا نام روبین دژ">تجارت گستر آریا نام روبین دژ</option>
+              <option value="نوسازان منطقه جنوب شرق">نوسازان منطقه جنوب شرق</option>
+              <option value="کوزو توپلوکونوت انشاات">کوزو توپلوکونوت انشاات</option>
+              <option value="کوزو پارس">کوزو پارس</option>
+              <option value="ماموت تلکا">ماموت تلکا</option>
+              <option value="اپتیک فناور مهر آوا">اپتیک فناور مهر آوا</option>
+              <option value="نماد داریس">نماد داریس</option>
+              <option value="سیویل سازه ولاش">سیویل سازه ولاش</option>
+              <option value="زرین کوه">زرین کوه</option>
+              <option value="طراح گرافیک">طراح گرافیک</option>
+              <option value="آقای ایمان خاک تاریک">آقای ایمان خاک تاریک</option>
+              <option value="فرصت آینده پارس">فرصت آینده پارس</option>
+              <option value="سرمایه گذاری نیکی گستر">سرمایه گذاری نیکی گستر</option>
+              <option value="سبدگردان آمال">سبدگردان آمال</option>
+              <option value="پیشگامان تجارت روژین">پیشگامان تجارت روژین</option>
+              <option value="دندان تجهیز مانا">دندان تجهیز مانا</option>
+              <option value="پژوهشکده آب و خاک آبادیس">پژوهشکده آب و خاک آبادیس</option>
+              <option value="آرمان اندیشان آمیتیس خاورمیانه">آرمان اندیشان آمیتیس خاورمیانه</option>
+              <option value="آقای فخیمی">آقای فخیمی</option>
+              <option value="آرکا شیمی سبز">آرکا شیمی سبز</option>
+              <option value="پارس کنسولت">پارس کنسولت</option>
+              <option value="سیویل سازه ولاش">سیویل سازه ولاش</option>
+              <option value="زرین کوه">زرین کوه</option>
+              <option value="مدیریت توسعه خودکار رایان">مدیریت توسعه خودکار رایان</option>
+              <option value="آرین مهراز بریا">آرین مهراز بریا</option>
+              <option value="آقای رضا رنجبرزاده">آقای رضا رنجبرزاده</option>
+              <option value="دندان تجهیز مانا">دندان تجهیز مانا</option>
+              <option value="نوید تجارت سبز">نوید تجارت سبز</option>
+              <option value="هفت قلعه مینا">هفت قلعه مینا</option>
+              <option value="تک شمس نامدار اروند">تک شمس نامدار اروند</option>
+              <option value="فرهان بنادر اروند">فرهان بنادر اروند</option>
+              <option value="دریا پیمای لیان آریا">دریا پیمای لیان آریا</option>
+              <option value="رادین پارسه اروند">رادین پارسه اروند</option>
+              <option value="ستاره بندر سفید">ستاره بندر سفید</option>
+              <option value="مایا بنادر اروند">مایا بنادر اروند</option>
+              <option value="شرکت داده های امن پارسه ریما">شرکت داده های امن پارسه ریما</option>
+              <option value="تامین مسکن نوید ایرانیان">تامین مسکن نوید ایرانیان</option>
+              <option value="تامین مسکن جوانان">تامین مسکن جوانان</option>
+              <option value="آقای سیفی">آقای سیفی</option>
+              <option value="آرمان بخش بلوط">آرمان بخش بلوط</option>
+              <option value="شرکت کشت و صنعت زرین مهر قومس">شرکت کشت و صنعت زرین مهر قومس</option>
+            </select>
           </div>
           <div class="col-md-3 col-12">
             <input type="text" class="form-control" name="userName" placeholder="نام کاربر" required />
@@ -309,6 +359,9 @@
               <option value="در درست اقدام">در درست اقدام</option>
             </select>
           </div>
+          <div class="col-md-3 col-12">
+            <input type="text" class="form-control" name="closeDescription" placeholder="شرح بستن درخواست (اختیاری)" />
+          </div>
           <div class="col-12">
             <button type="submit" class="btn btn-primary mb-2 w-100">
               <i class="bi bi-send"></i> ثبت درخواست
@@ -320,9 +373,14 @@
     <div class="glass-card mb-4">
       <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
         <h4 class="mb-0"><i class="bi bi-table"></i> جدول درخواست‌ها</h4>
-        <button id="reportBtn" class="btn btn-success">
-          <i class="bi bi-file-earmark-excel"></i> گزارش
-        </button>
+        <div>
+          <button id="searchBtn" class="btn btn-primary ms-2">
+            <i class="bi bi-search"></i> جستجو
+          </button>
+          <button id="reportBtn" class="btn btn-success">
+            <i class="bi bi-file-earmark-excel"></i> گزارش
+          </button>
+        </div>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">
@@ -337,6 +395,7 @@
                 <th>نوع درخواست</th>
                 <th>شرح اقدام</th>
                 <th>وضعیت (بررسی)</th>
+                <th>شرح بستن درخواست</th>
                 <th>ویرایش</th>
               </tr>
             </thead>
@@ -351,6 +410,24 @@
       <i class="bi bi-plus-lg"></i>
     </div>
   </div>
+  <!-- Action History Modal -->
+  <div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="historyModalLabel">تاریخچه اقدامات</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+        </div>
+        <div class="modal-body" id="historyModalBody">
+          <!-- History content will be injected here -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
   <script src="https://unpkg.com/jalali-moment/dist/jalali-moment.browser.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -361,36 +438,53 @@
       const res = await fetch("/api/requests");
       const requests = await res.json();
       allRequests = requests;
+      renderRequestsTable(requests);
+    }
+    // Make table rows clickable for history (except edit button)
+    function attachRowHistoryListeners() {
+      document.querySelectorAll("#requestsTableBody tr").forEach((row, idx) => {
+        // Skip if row has no data-id (shouldn't happen)
+        const editBtn = row.querySelector(".edit-btn");
+        if (!editBtn) return;
+        const id = editBtn.getAttribute("data-id");
+        // Prevent double binding
+        row.onclick = null;
+        // Only attach to row, not edit button
+        row.addEventListener("click", function (e) {
+          if (e.target.closest(".edit-btn")) return;
+          showHistoryModal(id);
+        });
+      });
+    }
+    // Call this after rendering table
+    function renderRequestsTable(requests) {
       const tbody = document.getElementById("requestsTableBody");
       tbody.innerHTML = "";
       requests.forEach((r) => {
-        // Convert Gregorian date to Jalali for display
-        const jalaliDate = moment(r.date, "YYYY-MM-DD")
-          .locale("fa")
-          .format("YYYY/MM/DD");
+        const jalaliDate = moment(r.date, "YYYY-MM-DD").locale("fa").format("YYYY/MM/DD");
         let statusClass = "";
         if (r.status === "باز") statusClass = "bg-danger text-white";
-        else if (r.status === "در درست اقدام")
-          statusClass = "bg-warning text-dark";
+        else if (r.status === "در درست اقدام") statusClass = "bg-warning text-dark";
         else if (r.status === "انجام") statusClass = "bg-success text-white";
-        // User initials avatar (removed)
         tbody.innerHTML += `
-            <tr class="fade-in-row">
-              <td>${jalaliDate}</td>
-              <td>${r.customerName}</td>
-              <td>${r.userName}</td>
-              <td>${r.system}</td>
-              <td>${r.request}</td>
-              <td>${r.requestType}</td>
-              <td>${r.actionDescription}</td>
-              <td class='${statusClass}'>${r.status}</td>
-              <td><button class='btn btn-sm btn-warning edit-btn' data-id='${r._id}'><i class="bi bi-pencil-square"></i> ویرایش</button></td>
-            </tr>
-          `;
+          <tr class="fade-in-row">
+            <td>${jalaliDate}</td>
+            <td>${r.customerName}</td>
+            <td>${r.userName}</td>
+            <td>${r.system}</td>
+            <td>${r.request}</td>
+            <td>${r.requestType}</td>
+            <td>${r.actionDescription}</td>
+            <td class='${statusClass}'>${r.status}</td>
+            <td>${r.closeDescription || ""}</td>
+            <td><button class='btn btn-sm btn-warning edit-btn' data-id='${r._id}'><i class="bi bi-pencil-square"></i> ویرایش</button></td>
+          </tr>
+        `;
       });
-      // Attach edit event listeners
+      // Attach edit and history listeners
       document.querySelectorAll(".edit-btn").forEach((btn) => {
-        btn.addEventListener("click", async function () {
+        btn.addEventListener("click", async function (e) {
+          e.stopPropagation();
           const id = this.getAttribute("data-id");
           // Find the row data
           const req = requests.find((x) => x._id === id);
@@ -403,17 +497,20 @@
               )
                 .locale("fa")
                 .format("YYYY/MM/DD")}'><br>` +
-              `<input id='swal-customerName' class='swal2-input' placeholder='نام مشتری' value='${req.customerName}'><br>` +
+              `<select id='swal-customerName' class='swal2-input'><option value='دریانورد'>دریانورد</option><option value='رادین پارسه اروند'>رادین پارسه اروند</option><option value='محمد مهدی خجسته'>محمد مهدی خجسته</option><option value='آرون صنعت شیمی'>آرون صنعت شیمی</option><option value='زهرا اسماعیلی'>زهرا اسماعیلی</option><option value='امان اله رییسی'>امان اله رییسی</option><option value='شرکت ویرا مهر'>شرکت ویرا مهر</option><option value='تجارت گستر آریا نام روبین دژ'>تجارت گستر آریا نام روبین دژ</option><option value='نوسازان منطقه جنوب شرق'>نوسازان منطقه جنوب شرق</option><option value='کوزو توپلوکونوت انشاات'>کوزو توپلوکونوت انشاات</option><option value='کوزو پارس'>کوزو پارس</option><option value='ماموت تلکا'>ماموت تلکا</option><option value='اپتیک فناور مهر آوا'>اپتیک فناور مهر آوا</option><option value='نماد داریس'>نماد داریس</option><option value='سیویل سازه ولاش'>سیویل سازه ولاش</option><option value='زرین کوه'>زرین کوه</option><option value='طراح گرافیک'>طراح گرافیک</option><option value='آقای ایمان خاک تاریک'>آقای ایمان خاک تاریک</option><option value='فرصت آینده پارس'>فرصت آینده پارس</option><option value='سرمایه گذاری نیکی گستر'>سرمایه گذاری نیکی گستر</option><option value='سبدگردان آمال'>سبدگردان آمال</option><option value='پیشگامان تجارت روژین'>پیشگامان تجارت روژین</option><option value='دندان تجهیز مانا'>دندان تجهیز مانا</option><option value='پژوهشکده آب و خاک آبادیس'>پژوهشکده آب و خاک آبادیس</option><option value='آرمان اندیشان آمیتیس خاورمیانه'>آرمان اندیشان آمیتیس خاورمیانه</option><option value='آقای فخیمی'>آقای فخیمی</option><option value='آرکا شیمی سبز'>آرکا شیمی سبز</option><option value='پارس کنسولت'>پارس کنسولت</option><option value='سیویل سازه ولاش'>سیویل سازه ولاش</option><option value='زرین کوه'>زرین کوه</option><option value='مدیریت توسعه خودکار رایان'>مدیریت توسعه خودکار رایان</option><option value='آرین مهراز بریا'>آرین مهراز بریا</option><option value='آقای رضا رنجبرزاده'>آقای رضا رنجبرزاده</option><option value='دندان تجهیز مانا'>دندان تجهیز مانا</option><option value='نوید تجارت سبز'>نوید تجارت سبز</option><option value='هفت قلعه مینا'>هفت قلعه مینا</option><option value='تک شمس نامدار اروند'>تک شمس نامدار اروند</option><option value='فرهان بنادر اروند'>فرهان بنادر اروند</option><option value='دریا پیمای لیان آریا'>دریا پیمای لیان آریا</option><option value='رادین پارسه اروند'>رادین پارسه اروند</option><option value='ستاره بندر سفید'>ستاره بندر سفید</option><option value='مایا بنادر اروند'>مایا بنادر اروند</option><option value='شرکت داده های امن پارسه ریما'>شرکت داده های امن پارسه ریما</option><option value='تامین مسکن نوید ایرانیان'>تامین مسکن نوید ایرانیان</option><option value='تامین مسکن جوانان'>تامین مسکن جوانان</option><option value='آقای سیفی'>آقای سیفی</option><option value='آرمان بخش بلوط'>آرمان بخش بلوط</option><option value='شرکت کشت و صنعت زرین مهر قومس'>شرکت کشت و صنعت زرین مهر قومس</option></select><br>` +
               `<input id='swal-userName' class='swal2-input' placeholder='نام کاربر' value='${req.userName}'><br>` +
               `<select id='swal-system' class='swal2-input'><option value='مالی'>مالی</option><option value='انبار'>انبار</option><option value='فروش'>فروش</option><option value='دریافت و پرداخت'>دریافت و پرداخت</option><option value='سامیار'>سامیار</option></select><br>` +
               `<input id='swal-request' class='swal2-input' placeholder='درخواست' value='${req.request}'><br>` +
               `<input id='swal-requestType' class='swal2-input' placeholder='نوع درخواست' value='${req.requestType}'><br>` +
               `<input id='swal-actionDescription' class='swal2-input' placeholder='شرح اقدام' value='${req.actionDescription}'><br>` +
-              `<select id='swal-status' class='swal2-input'><option value='انجام'>انجام</option><option value='باز'>باز</option><option value='در درست اقدام'>در درست اقدام</option></select>`,
+              `<select id='swal-status' class='swal2-input'><option value='انجام'>انجام</option><option value='باز'>باز</option><option value='در درست اقدام'>در درست اقدام</option></select><br>` +
+              `<input id='swal-closeDescription' class='swal2-input' placeholder='شرح بستن درخواست (اختیاری)' value='${req.closeDescription || ""}'><br>`,
             focusConfirm: false,
             didOpen: () => {
+              document.getElementById("swal-customerName").value = req.customerName;
               document.getElementById("swal-system").value = req.system;
               document.getElementById("swal-status").value = req.status;
+              document.getElementById("swal-closeDescription").value = req.closeDescription || "";
             },
             preConfirm: () => {
               return [
@@ -425,6 +522,7 @@
                 document.getElementById("swal-requestType").value,
                 document.getElementById("swal-actionDescription").value,
                 document.getElementById("swal-status").value,
+                document.getElementById("swal-closeDescription").value,
               ];
             },
           });
@@ -443,6 +541,7 @@
               requestType: formValues[5],
               actionDescription: formValues[6],
               status: formValues[7],
+              closeDescription: formValues[8],
             };
             const res = await fetch(`/api/requests/${id}`, {
               method: "PUT",
@@ -466,6 +565,7 @@
           }
         });
       });
+      attachRowHistoryListeners();
     }
     $(document).ready(function () {
       // Set today's Jalali date on page load
@@ -487,6 +587,7 @@
           requestType: form.requestType.value,
           actionDescription: form.actionDescription.value,
           status: form.status.value,
+          closeDescription: form.closeDescription.value,
         };
         const res = await fetch("/api/requests", {
           method: "POST",
@@ -524,6 +625,65 @@
           });
         }
       });
+    // Search button logic
+    document.addEventListener("DOMContentLoaded", function () {
+      document.getElementById("searchBtn").addEventListener("click", async function () {
+        const { value: formValues } = await Swal.fire({
+          title: "جستجوی درخواست‌ها",
+          html:
+            `<input id='search-date' class='swal2-input' placeholder='تاریخ (مثال: 1404/04/22)'><br>` +
+            `<input id='search-customerName' class='swal2-input' placeholder='نام مشتری'><br>` +
+            `<input id='search-userName' class='swal2-input' placeholder='نام کاربر'><br>` +
+            `<select id='search-system' class='swal2-input'><option value=''>سیستم</option><option value='مالی'>مالی</option><option value='انبار'>انبار</option><option value='فروش'>فروش</option><option value='دریافت و پرداخت'>دریافت و پرداخت</option><option value='سامیار'>سامیار</option></select><br>` +
+            `<input id='search-request' class='swal2-input' placeholder='درخواست'><br>` +
+            `<input id='search-requestType' class='swal2-input' placeholder='نوع درخواست'><br>` +
+            `<input id='search-actionDescription' class='swal2-input' placeholder='شرح اقدام'><br>` +
+            `<select id='search-status' class='swal2-input'><option value=''>وضعیت (بررسی)</option><option value='انجام'>انجام</option><option value='باز'>باز</option><option value='در درست اقدام'>در درست اقدام</option></select>`,
+          focusConfirm: false,
+          preConfirm: () => {
+            return [
+              document.getElementById("search-date").value,
+              document.getElementById("search-customerName").value,
+              document.getElementById("search-userName").value,
+              document.getElementById("search-system").value,
+              document.getElementById("search-request").value,
+              document.getElementById("search-requestType").value,
+              document.getElementById("search-actionDescription").value,
+              document.getElementById("search-status").value,
+            ];
+          },
+          showCancelButton: true,
+          confirmButtonText: "جستجو",
+          cancelButtonText: "انصراف",
+        });
+        if (!formValues) {
+          // If cancelled, reload all requests
+          loadRequests();
+          return;
+        }
+        // Build query params
+        const params = {};
+        if (formValues[0]) {
+          // Convert Jalali to Gregorian
+          params.date = moment.from(formValues[0], "fa", "YYYY/MM/DD").locale("en").format("YYYY-MM-DD");
+        }
+        if (formValues[1]) params.customerName = formValues[1];
+        if (formValues[2]) params.userName = formValues[2];
+        if (formValues[3]) params.system = formValues[3];
+        if (formValues[4]) params.request = formValues[4];
+        if (formValues[5]) params.requestType = formValues[5];
+        if (formValues[6]) params.actionDescription = formValues[6];
+        if (formValues[7]) params.status = formValues[7];
+        // Build query string
+        const queryString = Object.keys(params)
+          .map((k) => encodeURIComponent(k) + "=" + encodeURIComponent(params[k]))
+          .join("&");
+        const res = await fetch(`/api/requests/search?${queryString}`);
+        const results = await res.json();
+        allRequests = results;
+        renderRequestsTable(results);
+      });
+    });
     // Report button logic
     document.addEventListener("DOMContentLoaded", function () {
       document
@@ -597,6 +757,7 @@
             "نوع درخواست": r.requestType,
             "شرح اقدام": r.actionDescription,
             وضعیت: r.status,
+            شرح_بستن: r.closeDescription || "",
           }));
           const ws = XLSX.utils.json_to_sheet(excelData);
           const wb = XLSX.utils.book_new();
@@ -614,6 +775,44 @@
       Swal.mixin({
         confirmButtonText: "تایید",
         cancelButtonText: "انصراف",
+      });
+    }
+    // Call this after rendering table rows, call this:
+    function showHistoryModal(requestId) {
+      fetch(`/api/requests/${requestId}/history`).then(r => r.json()).then(history => {
+        let html = "";
+        // Field name mapping for Persian labels
+        const fieldLabels = {
+          status: "وضعیت",
+          closeDescription: "شرح بستن درخواست",
+          date: "تاریخ",
+          customerName: "نام مشتری",
+          userName: "نام کاربر",
+          system: "سیستم",
+          request: "درخواست",
+          requestType: "نوع درخواست",
+          actionDescription: "شرح اقدام",
+        };
+        if (!history.length) {
+          html = '<div class="alert alert-info">هیچ ویرایشی برای این درخواست ثبت نشده است.</div>';
+        } else {
+          html = `<ul class="list-group">`;
+          history.forEach(item => {
+            html += `<li class="list-group-item">
+              <div><b>زمان:</b> ${new Date(item.timestamp).toLocaleString("fa-IR")}</div>
+              <div><b>تغییرات:</b>
+                <ul>`;
+            item.changedFields.forEach(f => {
+              const label = fieldLabels[f.field] || f.field;
+              html += `<li><b>${label}:</b> <span class='text-danger'>${f.oldValue ?? "-"}</span> → <span class='text-success'>${f.newValue ?? "-"}</span></li>`;
+            });
+            html += `</ul></div></li>`;
+          });
+          html += `</ul>`;
+        }
+        document.getElementById("historyModalBody").innerHTML = html;
+        const modal = new bootstrap.Modal(document.getElementById('historyModal'));
+        modal.show();
       });
     }
   </script>

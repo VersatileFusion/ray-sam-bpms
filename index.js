@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const Request = require("./models/Request");
+const RequestHistory = require("./models/RequestHistory");
 const { sendSMSToAllUsers } = require("./sms");
 const moment = require("jalali-moment");
 
@@ -113,16 +114,83 @@ app.get("/api/requests", async (req, res) => {
   }
 });
 
+// Search requests
+app.get("/api/requests/search", async (req, res) => {
+  try {
+    const query = {};
+    // For each possible field, add to query if present
+    const fields = [
+      "date",
+      "customerName",
+      "userName",
+      "system",
+      "request",
+      "requestType",
+      "actionDescription",
+      "status",
+    ];
+    fields.forEach((field) => {
+      if (req.query[field]) {
+        if (field === "date") {
+          // Date: exact match (should be in YYYY-MM-DD)
+          query.date = req.query.date;
+        } else if (field === "status" || field === "system") {
+          // Status/system: exact match
+          query[field] = req.query[field];
+        } else {
+          // Other string fields: case-insensitive partial match
+          query[field] = { $regex: req.query[field], $options: "i" };
+        }
+      }
+    });
+    const results = await Request.find(query).sort({ _id: -1 });
+    res.json(results);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
 // Update a request by ID
 app.put("/api/requests/:id", async (req, res) => {
   try {
+    const oldRequest = await Request.findById(req.params.id);
+    if (!oldRequest) return res.status(404).json({ message: "Not found" });
     const updated = await Request.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
     if (!updated) return res.status(404).json({ message: "Not found" });
+    // Compare fields and log changes
+    const changedFields = [];
+    Object.keys(req.body).forEach((field) => {
+      if (oldRequest[field] !== req.body[field]) {
+        changedFields.push({
+          field,
+          oldValue: oldRequest[field],
+          newValue: req.body[field],
+        });
+      }
+    });
+    if (changedFields.length > 0) {
+      await RequestHistory.create({
+        requestId: req.params.id,
+        changedFields,
+      });
+    }
     res.json(updated);
   } catch (error) {
     console.error(error.stack || error);
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
+// Get request history
+app.get("/api/requests/:id/history", async (req, res) => {
+  try {
+    const history = await RequestHistory.find({
+      requestId: req.params.id,
+    }).sort({ timestamp: -1 });
+    res.json(history);
+  } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
 });
