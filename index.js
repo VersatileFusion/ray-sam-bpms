@@ -59,7 +59,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === 'production', // Set to true in production
+      secure: false, // Set to false for now to fix the issue
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
       sameSite: 'lax',
       httpOnly: true
@@ -319,16 +319,7 @@ app.get("/api/auth/me", (req, res) => {
   }
 });
 
-// Debug route to check session data
-app.get("/api/debug/session", requireAuth, (req, res) => {
-  console.log('Session data:', req.session);
-  console.log('Session user:', req.session.user);
-  res.json({ 
-    session: req.session,
-    user: req.session.user,
-    hasUser: !!req.session.user
-  });
-});
+
 
 // Create a new request
 app.post("/api/requests", requireAuth, async (req, res) => {

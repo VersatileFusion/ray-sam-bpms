@@ -844,14 +844,12 @@
         if (response.ok) {
           const data = await response.json();
           currentUser = data.user;
-
-          
-
+          loadRequests();
         } else {
-          window.location.href = 'login.html';
+          window.location.href = '/login.html';
         }
       } catch (error) {
-        window.location.href = 'login.html';
+        window.location.href = '/login.html';
       }
     }
 
