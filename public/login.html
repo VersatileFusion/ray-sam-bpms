@@ -155,7 +155,9 @@
   </div>
 
   <script>
-    const API_BASE = "http://localhost:3000";
+    const API_BASE = window.location.hostname === 'localhost' 
+      ? "http://localhost:3000" 
+      : "https://ray-sam-bpms.onrender.com";
     
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
