@@ -67,6 +67,17 @@ app.use(
   })
 );
 
+// Database connection check middleware
+const checkDatabase = (req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({ 
+      message: "Database connection not available",
+      error: "DATABASE_UNAVAILABLE"
+    });
+  }
+  next();
+};
+
 // Authentication middleware
 const requireAuth = (req, res, next) => {
   if (req.session.user) {
@@ -146,34 +157,34 @@ async function getAllUsers() {
 async function initializeDefaultUsers() {
   try {
     const defaultUsers = [
-      { username: "miladi", password: "miladi", name: "Miladi", role: "user" },
+      { username: "miladi", password: "Miladi@2024!", name: "Miladi", role: "user" },
       {
         username: "yazdani",
-        password: "yazdani",
+        password: "Yazdani@2024!",
         name: "Yazdani",
         role: "user",
       },
       {
         username: "ghasemi",
-        password: "ghasemi",
+        password: "Ghasemi@2024!",
         name: "Ghasemi",
         role: "user",
       },
       {
         username: "ahmadvand",
-        password: "ahmadvand",
+        password: "Ahmadvand@2024!",
         name: "Ahmadvand",
         role: "user",
       },
       {
         username: "mohades",
-        password: "mohades",
+        password: "Mohades@2024!",
         name: "Mohades",
         role: "user",
       },
       {
         username: "admin",
-        password: "admin",
+        password: "Admin@2024!",
         name: "Administrator",
         role: "admin",
       },
@@ -184,6 +195,14 @@ async function initializeDefaultUsers() {
       if (!existingUser) {
         await createUser(userData);
         console.log(`Created user: ${userData.username}`);
+      } else {
+        // Update existing user with new password if it's the old simple password
+        const isOldPassword = await existingUser.comparePassword(userData.username); // old password was same as username
+        if (isOldPassword) {
+          existingUser.password = userData.password;
+          await existingUser.save();
+          console.log(`Updated password for user: ${userData.username}`);
+        }
       }
     }
   } catch (error) {
@@ -213,20 +232,42 @@ app.get("/index.html", (req, res, next) => {
 });
 
 // MongoDB connection and initialize users
-mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log("MongoDB connected");
-    // Initialize default users
-    return initializeDefaultUsers();
-  })
-  .then(() => {
-    console.log("Default users initialized");
-  })
-  .catch((err) => console.error("MongoDB connection error:", err));
+async function startServer() {
+  try {
+    if (!process.env.MONGODB_URI) {
+      console.error("MONGODB_URI environment variable is not set!");
+      console.log("Starting server without database connection...");
+    } else {
+      await mongoose.connect(process.env.MONGODB_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      });
+      console.log("MongoDB connected");
+      
+      // Initialize default users
+      await initializeDefaultUsers();
+      console.log("Default users initialized");
+    }
+    
+    // Start the server regardless of MongoDB connection
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`MongoDB URI exists: ${!!process.env.MONGODB_URI}`);
+    });
+  } catch (error) {
+    console.error("Error starting server:", error);
+    console.log("Starting server without database connection...");
+    
+    // Start the server even if MongoDB fails
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT} (without database)`);
+    });
+  }
+}
+
+// Start the server
+startServer();
 
 // Basic route - redirect to login page
 app.get("/", (req, res) => {
@@ -468,6 +509,4 @@ app.get("/api/requests/:id/history", requireAuth, async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+
