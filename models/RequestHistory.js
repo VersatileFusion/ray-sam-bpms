@@ -13,6 +13,11 @@ const requestHistorySchema = new mongoose.Schema({
       newValue: mongoose.Schema.Types.Mixed,
     },
   ],
+  modifiedBy: {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    name: { type: String },
+    timestamp: { type: Date, default: Date.now }
+  },
   timestamp: { type: Date, default: Date.now },
 });
 

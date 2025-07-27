@@ -2,61 +2,253 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const Request = require("./models/Request");
-const RequestHistory = require("./models/RequestHistory");
-const { sendSMSToAllUsers } = require("./sms");
+const session = require("express-session");
+const bcrypt = require("bcryptjs");
 const moment = require("jalali-moment");
 
+// Import models
+const Request = require("./models/Request");
+const RequestHistory = require("./models/RequestHistory");
+const User = require("./models/User");
+const { sendSMSToAllUsers } = require("./sms");
+
 // Load environment variables
-dotenv.config();
+dotenv.config({ path: './atlas.env' });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Debug: Check environment variables
+console.log('Environment check:');
+console.log('PORT:', process.env.PORT);
+console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
+
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "https://ray-sam-bpms.onrender.com"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use(express.json());
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "your-secret-key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // Set to true if using HTTPS
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  })
+);
 
-// Basic Auth Middleware
-app.use((req, res, next) => {
-  const auth = req.headers["authorization"];
-  if (!auth) {
-    res.set("WWW-Authenticate", 'Basic realm="Protected"');
-    return res.status(401).send("Authentication required.");
+// Authentication middleware
+const requireAuth = (req, res, next) => {
+  if (req.session.user) {
+    next();
+  } else {
+    res.status(401).json({ message: "Authentication required" });
   }
-  // Decode base64
-  const [scheme, encoded] = auth.split(" ");
-  if (scheme !== "Basic" || !encoded) {
-    return res.status(401).send("Invalid authentication scheme.");
-  }
-  const decoded = Buffer.from(encoded, "base64").toString();
-  const [user, pass] = decoded.split(":");
-  if (user === "admin" && pass === "admin") {
-    return next();
-  }
-  res.set("WWW-Authenticate", 'Basic realm="Protected"');
-  return res.status(401).send("Invalid credentials.");
-});
+};
 
-// Serve static files (now protected)
+// User authentication functions
+async function loginUser(username, password) {
+  try {
+    const user = await User.findOne({ username, isActive: true });
+    if (!user) {
+      throw new Error("Invalid username or password");
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      throw new Error("Invalid username or password");
+    }
+
+    // Update last login
+    user.lastLogin = new Date();
+    await user.save();
+
+    return {
+      _id: user._id,
+      username: user.username,
+      name: user.name,
+      role: user.role,
+    };
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function createUser(userData) {
+  try {
+    const { username, password, name, role = "user" } = userData;
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      throw new Error("Username already exists");
+    }
+
+    const user = new User({
+      username,
+      password,
+      name,
+      role,
+    });
+
+    await user.save();
+    return {
+      _id: user._id,
+      username: user.username,
+      name: user.name,
+      role: user.role,
+    };
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getAllUsers() {
+  try {
+    const users = await User.find({}, { password: 0 });
+    return users;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Initialize default users
+async function initializeDefaultUsers() {
+  try {
+    const defaultUsers = [
+      { username: "miladi", password: "miladi", name: "Miladi", role: "user" },
+      {
+        username: "yazdani",
+        password: "yazdani",
+        name: "Yazdani",
+        role: "user",
+      },
+      {
+        username: "ghasemi",
+        password: "ghasemi",
+        name: "Ghasemi",
+        role: "user",
+      },
+      {
+        username: "ahmadvand",
+        password: "ahmadvand",
+        name: "Ahmadvand",
+        role: "user",
+      },
+      {
+        username: "mohades",
+        password: "mohades",
+        name: "Mohades",
+        role: "user",
+      },
+      {
+        username: "admin",
+        password: "admin",
+        name: "Administrator",
+        role: "admin",
+      },
+    ];
+
+    for (const userData of defaultUsers) {
+      const existingUser = await User.findOne({ username: userData.username });
+      if (!existingUser) {
+        await createUser(userData);
+        console.log(`Created user: ${userData.username}`);
+      }
+    }
+  } catch (error) {
+    console.error("Error initializing default users:", error);
+  }
+}
+
+// Serve static files
 app.use(express.static("public"));
 
-// MongoDB connection
+// Protect index.html - redirect to login if not authenticated
+app.get("/index.html", (req, res, next) => {
+  if (!req.session.user) {
+    return res.redirect("/login.html");
+  }
+  next();
+});
+
+// MongoDB connection and initialize users
 mongoose
   .connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log("MongoDB connected"))
+  .then(() => {
+    console.log("MongoDB connected");
+    // Initialize default users
+    return initializeDefaultUsers();
+  })
+  .then(() => {
+    console.log("Default users initialized");
+  })
   .catch((err) => console.error("MongoDB connection error:", err));
 
-// Basic route
+// Basic route - redirect to login page
 app.get("/", (req, res) => {
-  res.send("Express server is running");
+  res.redirect("/login.html");
+});
+
+// Explicit route for login page
+app.get("/login", (req, res) => {
+  res.redirect("/login.html");
+});
+
+// Authentication routes
+app.post("/api/auth/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await loginUser(username, password);
+    req.session.user = user;
+    
+    // Debug: Check what's stored in session
+    console.log('Stored in session:', req.session.user);
+
+    res.json({ success: true, user });
+  } catch (error) {
+    res.status(401).json({ success: false, message: error.message });
+  }
+});
+
+app.post("/api/auth/logout", (req, res) => {
+  req.session.destroy();
+  res.json({ success: true, message: "Logged out successfully" });
+});
+
+app.get("/api/auth/me", (req, res) => {
+  if (req.session.user) {
+    res.json({ success: true, user: req.session.user });
+  } else {
+    res.status(401).json({ success: false, message: "Not authenticated" });
+  }
+});
+
+// Debug route to check session data
+app.get("/api/debug/session", requireAuth, (req, res) => {
+  console.log('Session data:', req.session);
+  console.log('Session user:', req.session.user);
+  res.json({ 
+    session: req.session,
+    user: req.session.user,
+    hasUser: !!req.session.user
+  });
 });
 
 // Create a new request
-app.post("/api/requests", async (req, res) => {
+app.post("/api/requests", requireAuth, async (req, res) => {
+  
   try {
     const {
       date,
@@ -85,6 +277,11 @@ app.post("/api/requests", async (req, res) => {
       .from(date, "fa", "YYYY/MM/DD")
       .locale("en")
       .format("YYYY-MM-DD");
+
+
+
+    
+    // Create request with user tracking
     const newRequest = new Request({
       date: gregorianDate,
       customerName,
@@ -94,28 +291,42 @@ app.post("/api/requests", async (req, res) => {
       requestType,
       actionDescription,
       status,
+      createdBy: {
+        userId: req.session.user._id,
+        name: req.session.user.name,
+        timestamp: new Date()
+      },
+      lastModifiedBy: {
+        userId: req.session.user._id,
+        name: req.session.user.name,
+        timestamp: new Date()
+      },
+      createdByUser: req.session.user.name, // Keep this for testing
     });
-    await newRequest.save();
+    
+    const savedRequest = await newRequest.save();
+    
     await sendSMSToAllUsers("درخواستی ثبت شده");
+
     res.status(201).json({ message: "Request created successfully." });
   } catch (error) {
     console.error(error.stack || error);
-    res.status(500).json({ message: "Server error", error });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
 // Get all requests
-app.get("/api/requests", async (req, res) => {
+app.get("/api/requests", requireAuth, async (req, res) => {
   try {
     const requests = await Request.find().sort({ _id: -1 });
     res.json(requests);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
 // Search requests
-app.get("/api/requests/search", async (req, res) => {
+app.get("/api/requests/search", requireAuth, async (req, res) => {
   try {
     const query = {};
     // For each possible field, add to query if present
@@ -144,20 +355,32 @@ app.get("/api/requests/search", async (req, res) => {
       }
     });
     const results = await Request.find(query).sort({ _id: -1 });
+
     res.json(results);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
 // Update a request by ID
-app.put("/api/requests/:id", async (req, res) => {
+app.put("/api/requests/:id", requireAuth, async (req, res) => {
   try {
     const oldRequest = await Request.findById(req.params.id);
     if (!oldRequest) return res.status(404).json({ message: "Not found" });
-    const updated = await Request.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+    const updated = await Request.findByIdAndUpdate(
+      req.params.id,
+      {
+        ...req.body,
+        lastModifiedBy: {
+          userId: req.session.user._id,
+          name: req.session.user.name,
+          timestamp: new Date()
+        },
+      },
+      {
+        new: true,
+      }
+    );
     if (!updated) return res.status(404).json({ message: "Not found" });
     // Compare fields and log changes
     const changedFields = [];
@@ -174,24 +397,31 @@ app.put("/api/requests/:id", async (req, res) => {
       await RequestHistory.create({
         requestId: req.params.id,
         changedFields,
+        modifiedBy: {
+          userId: req.session.user._id,
+          name: req.session.user.name,
+          timestamp: new Date()
+        },
       });
     }
+
     res.json(updated);
   } catch (error) {
     console.error(error.stack || error);
-    res.status(500).json({ message: "Server error", error });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
 // Get request history
-app.get("/api/requests/:id/history", async (req, res) => {
+app.get("/api/requests/:id/history", requireAuth, async (req, res) => {
   try {
     const history = await RequestHistory.find({
       requestId: req.params.id,
     }).sort({ timestamp: -1 });
+
     res.json(history);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 

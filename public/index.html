@@ -380,6 +380,10 @@
           <button id="reportBtn" class="btn btn-success">
             <i class="bi bi-file-earmark-excel"></i> گزارش
           </button>
+
+          <button id="logoutBtn" class="btn btn-danger ms-2">
+            <i class="bi bi-box-arrow-right"></i> خروج
+          </button>
         </div>
       </div>
       <div class="card-body p-0">
@@ -396,6 +400,8 @@
                 <th>شرح اقدام</th>
                 <th>وضعیت (بررسی)</th>
                 <th>شرح بستن درخواست</th>
+                <th>ایجاد شده توسط</th>
+                <th>آخرین تغییر</th>
                 <th>ویرایش</th>
               </tr>
             </thead>
@@ -433,9 +439,17 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
+    const API_BASE = "http://localhost:3000";
     let allRequests = [];
+    let currentUser = null;
     async function loadRequests() {
-      const res = await fetch("/api/requests");
+      const res = await fetch(`${API_BASE}/api/requests`, {
+        credentials: 'include'
+      });
+      if (res.status === 401) {
+        window.location.href = 'login.html';
+        return;
+      }
       const requests = await res.json();
       allRequests = requests;
       renderRequestsTable(requests);
@@ -466,6 +480,25 @@
         if (r.status === "باز") statusClass = "bg-danger text-white";
         else if (r.status === "در درست اقدام") statusClass = "bg-warning text-dark";
         else if (r.status === "انجام") statusClass = "bg-success text-white";
+
+        
+        const createdBy = r.createdBy && r.createdBy.name ? 
+          `<span class="badge bg-success">${r.createdBy.name}</span>` : 
+          '<span class="text-muted">نامشخص</span>';
+        
+        const lastModified = r.lastModifiedBy && r.lastModifiedBy.name ? 
+          `<span class="badge bg-info">${r.lastModifiedBy.name}</span>` : 
+          '<span class="text-muted">نامشخص</span>';
+        
+        // Check if this is a new request (created and modified by same user at same time)
+        const isNewRequest = r.createdBy && r.lastModifiedBy && 
+          r.createdBy.userId === r.lastModifiedBy.userId && 
+          new Date(r.createdAt).getTime() === new Date(r.lastModifiedBy.timestamp).getTime();
+        
+        const statusIndicator = isNewRequest ? 
+          '<span class="badge bg-success">جدید</span>' : 
+          '<span class="badge bg-warning">ویرایش شده</span>';
+        
         tbody.innerHTML += `
           <tr class="fade-in-row">
             <td>${jalaliDate}</td>
@@ -475,8 +508,10 @@
             <td>${r.request}</td>
             <td>${r.requestType}</td>
             <td>${r.actionDescription}</td>
-            <td class='${statusClass}'>${r.status}</td>
+            <td class='${statusClass}'>${r.status} ${statusIndicator}</td>
             <td>${r.closeDescription || ""}</td>
+            <td>${createdBy}</td>
+            <td>${lastModified}</td>
             <td><button class='btn btn-sm btn-warning edit-btn' data-id='${r._id}'><i class="bi bi-pencil-square"></i> ویرایش</button></td>
           </tr>
         `;
@@ -543,9 +578,12 @@
               status: formValues[7],
               closeDescription: formValues[8],
             };
-            const res = await fetch(`/api/requests/${id}`, {
+            const res = await fetch(`${API_BASE}/api/requests/${id}`, {
               method: "PUT",
-              headers: { "Content-Type": "application/json" },
+              headers: {
+                "Content-Type": "application/json"
+              },
+              credentials: 'include',
               body: JSON.stringify(updatedData),
             });
             if (res.ok) {
@@ -568,10 +606,18 @@
       attachRowHistoryListeners();
     }
     $(document).ready(function () {
-      // Set today's Jalali date on page load
-      var todayJalali = moment().locale("fa").format("YYYY/MM/DD");
-      $("#dateInput").val(todayJalali);
-      loadRequests();
+      // Check authentication first
+      checkAuth().then(() => {
+        // Set today's Jalali date on page load
+        var todayJalali = moment().locale("fa").format("YYYY/MM/DD");
+        $("#dateInput").val(todayJalali);
+        loadRequests();
+      });
+      
+      // Add logout button event listener
+      document.getElementById('logoutBtn').addEventListener('click', logout);
+      
+
     });
     document
       .getElementById("requestForm")
@@ -589,11 +635,16 @@
           status: form.status.value,
           closeDescription: form.closeDescription.value,
         };
-        const res = await fetch("/api/requests", {
+
+        const res = await fetch(`${API_BASE}/api/requests`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: 'include',
           body: JSON.stringify(data),
         });
+        const responseText = await res.text();
         if (res.ok) {
           Swal.fire({
             toast: true,
@@ -678,7 +729,9 @@
         const queryString = Object.keys(params)
           .map((k) => encodeURIComponent(k) + "=" + encodeURIComponent(params[k]))
           .join("&");
-        const res = await fetch(`/api/requests/search?${queryString}`);
+        const res = await fetch(`${API_BASE}/api/requests/search?${queryString}`, {
+          credentials: 'include'
+        });
         const results = await res.json();
         allRequests = results;
         renderRequestsTable(results);
@@ -763,6 +816,8 @@
           const wb = XLSX.utils.book_new();
           XLSX.utils.book_append_sheet(wb, ws, "گزارش");
           XLSX.writeFile(wb, "report.xlsx");
+          
+
         });
     });
     // Floating Action Button for Add
@@ -777,9 +832,46 @@
         cancelButtonText: "انصراف",
       });
     }
+    // Authentication check on page load
+    async function checkAuth() {
+      try {
+        const response = await fetch(`${API_BASE}/api/auth/me`, {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          currentUser = data.user;
+
+          
+
+        } else {
+          window.location.href = 'login.html';
+        }
+      } catch (error) {
+        window.location.href = 'login.html';
+      }
+    }
+
+    // Logout function
+    async function logout() {
+      try {
+        await fetch(`${API_BASE}/api/auth/logout`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        window.location.href = 'login.html';
+      } catch (error) {
+        console.error('Logout error:', error);
+        window.location.href = 'login.html';
+      }
+    }
+
     // Call this after rendering table rows, call this:
     function showHistoryModal(requestId) {
-      fetch(`/api/requests/${requestId}/history`).then(r => r.json()).then(history => {
+      fetch(`${API_BASE}/api/requests/${requestId}/history`, {
+        credentials: 'include'
+      }).then(r => r.json()).then(history => {
         let html = "";
         // Field name mapping for Persian labels
         const fieldLabels = {
@@ -798,8 +890,13 @@
         } else {
           html = `<ul class="list-group">`;
           history.forEach(item => {
+            const modifiedBy = item.modifiedBy && item.modifiedBy.name ? item.modifiedBy.name : 'کاربر نامشخص';
+            
             html += `<li class="list-group-item">
-              <div><b>زمان:</b> ${new Date(item.timestamp).toLocaleString("fa-IR")}</div>
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div><b>زمان:</b> ${new Date(item.timestamp).toLocaleString("fa-IR")}</div>
+                <div><b>توسط:</b> <span class="badge bg-primary">${modifiedBy}</span></div>
+              </div>
               <div><b>تغییرات:</b>
                 <ul>`;
             item.changedFields.forEach(f => {
