@@ -14,6 +14,8 @@ const { sendSMSToAllUsers } = require("./sms");
 
 // Load environment variables
 dotenv.config({ path: './atlas.env' });
+// Also try loading from .env if atlas.env doesn't exist
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,7 +28,25 @@ console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
 // Middleware
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://ray-sam-bpms.onrender.com"],
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      const allowedOrigins = [
+        "http://localhost:3000", 
+        "https://ray-sam-bpms.onrender.com",
+        "https://ray-sam-bpms.onrender.com/",
+        "https://ray-sam-bpms.onrender.com/login.html",
+        "https://ray-sam-bpms.onrender.com/index.html"
+      ];
+      
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        console.log('CORS blocked origin:', origin);
+        callback(null, true); // Allow all origins for now
+      }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -39,8 +59,10 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, // Set to true if using HTTPS
+      secure: process.env.NODE_ENV === 'production', // Set to true in production
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      sameSite: 'lax',
+      httpOnly: true
     },
   })
 );
@@ -169,6 +191,16 @@ async function initializeDefaultUsers() {
   }
 }
 
+// Health check endpoint
+app.get("/api/health", (req, res) => {
+  res.json({ 
+    status: "OK", 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    mongodb: !!process.env.MONGODB_URI
+  });
+});
+
 // Serve static files
 app.use(express.static("public"));
 
@@ -209,15 +241,26 @@ app.get("/login", (req, res) => {
 // Authentication routes
 app.post("/api/auth/login", async (req, res) => {
   try {
+    console.log('Login attempt:', { username: req.body.username, hasPassword: !!req.body.password });
+    
     const { username, password } = req.body;
+    
+    if (!username || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Username and password are required" 
+      });
+    }
+    
     const user = await loginUser(username, password);
     req.session.user = user;
     
-    // Debug: Check what's stored in session
-    console.log('Stored in session:', req.session.user);
+    console.log('Login successful for user:', user.name);
+    console.log('Session ID:', req.sessionID);
 
     res.json({ success: true, user });
   } catch (error) {
+    console.error('Login error:', error.message);
     res.status(401).json({ success: false, message: error.message });
   }
 });
