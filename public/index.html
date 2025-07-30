@@ -99,16 +99,105 @@
 
     .swal2-html-container {
       font-family: Vazirmatn, sans-serif !important;
-      font-size: 1.05rem;
+      font-size: 1.1rem;
+      line-height: 1.6;
       color: var(--text) !important;
-      background: none;
-      border-radius: 0.5rem;
-      padding: 0.5rem 0.5rem;
-      margin: 0.5rem 0 0.5rem 0;
-      box-shadow: none;
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      border-radius: 0.75rem;
+      padding: 1.25rem 1.5rem;
+      margin: 1rem 0;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
       text-align: right;
       direction: rtl;
-      border: none;
+      border: 1px solid rgba(26, 35, 126, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .swal2-html-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border-radius: 0.75rem 0.75rem 0 0;
+    }
+
+    .swal2-html-container p {
+      margin: 0.75rem 0;
+      font-weight: 500;
+    }
+
+    .swal2-html-container strong {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .swal2-html-container em {
+      color: var(--secondary);
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    /* SweetAlert2 Input Styling for consistent spacing */
+    .swal2-input {
+      border-radius: 0.5rem !important;
+      border: 1.5px solid var(--border) !important;
+      background: #fafbfc !important;
+      font-weight: 500 !important;
+      font-family: Vazirmatn, sans-serif !important;
+      font-size: 1rem !important;
+      line-height: 1.5 !important;
+      transition: border 0.2s !important;
+      padding: 0.875rem 1rem !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+      margin: 0.5rem 0 !important;
+      text-align: right !important;
+      direction: rtl !important;
+      min-height: 3.25rem !important;
+    }
+
+    .swal2-input:focus {
+      border-color: var(--primary) !important;
+      background: #fff !important;
+      outline: none !important;
+      box-shadow: 0 0 0 0.2rem rgba(26, 35, 126, 0.25) !important;
+    }
+
+    /* Specific styling for SweetAlert2 select elements */
+    .swal2-input[type="select"],
+    .swal2-input select {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 6 7 7 7-7'/%3e%3c/svg%3e") !important;
+      background-repeat: no-repeat !important;
+      background-position: left 0.75rem center !important;
+      background-size: 16px 12px !important;
+      padding-left: 2.5rem !important;
+      padding-right: 1rem !important;
+    }
+
+    /* Ensure proper text display in all input types */
+    .swal2-input::placeholder {
+      color: #6c757d !important;
+      opacity: 1 !important;
+    }
+
+    /* Ensure consistent form layout */
+    .row.g-3 {
+      margin: 0;
+    }
+
+    .row.g-3 > [class*="col-"] {
+      padding: 0.75rem;
+    }
+
+    /* Container for consistent spacing */
+    .form-container {
+      padding: 0 1rem;
+      max-width: 100%;
+      margin: 0 auto;
     }
 
     .swal2-actions {
@@ -161,13 +250,47 @@
       font-weight: 500;
       font-family: Vazirmatn, sans-serif;
       font-size: 1rem;
+      line-height: 1.5;
       transition: border 0.2s;
+      padding: 0.875rem 1rem;
+      width: 100%;
+      box-sizing: border-box;
+      margin: 0;
+      min-height: 3.25rem;
+      display: flex;
+      align-items: center;
     }
 
     .form-control:focus,
     .form-select:focus {
       border-color: var(--primary);
       background: #fff;
+    }
+
+    /* Specific styling for select elements to fix text display */
+    .form-select {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 6 7 7 7-7'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: left 0.75rem center;
+      background-size: 16px 12px;
+      padding-left: 2.5rem;
+      padding-right: 1rem;
+    }
+
+    /* Ensure text is properly visible in inputs */
+    .form-control::placeholder,
+    .form-select::placeholder {
+      color: #6c757d;
+      opacity: 1;
+    }
+
+    /* Fix for Persian text display */
+    .form-control,
+    .form-select,
+    .swal2-input {
+      text-align: right;
+      direction: rtl;
+      vertical-align: middle;
     }
 
     .btn-primary {
@@ -271,7 +394,8 @@
         <!-- Removed dark mode toggle button -->
       </div>
       <div class="card-body">
-        <form id="requestForm" class="row g-3 mb-4">
+        <div class="form-container">
+          <form id="requestForm" class="row g-3 mb-4">
           <div class="col-md-3 col-12">
             <input type="text" class="form-control" id="dateInput" name="date" placeholder="تاریخ" required
               autocomplete="off" style="border: 2px solid #007bff" />
@@ -368,6 +492,7 @@
             </button>
           </div>
         </form>
+        </div>
       </div>
     </div>
     <div class="glass-card mb-4">
