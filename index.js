@@ -204,12 +204,24 @@ async function initializeDefaultUsers() {
 }
 
 // Health check endpoint
-app.get("/api/health", (req, res) => {
+app.get("/api/health", async (req, res) => {
+  const dbConnected = mongoose.connection.readyState === 1;
+  let userCount = 0;
+  
+  try {
+    userCount = await User.countDocuments();
+  } catch (error) {
+    console.error('Error counting users:', error);
+  }
+  
   res.json({ 
     status: "OK", 
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
-    mongodb: !!process.env.MONGODB_URI
+    mongodb_uri_exists: !!process.env.MONGODB_URI,
+    mongodb_connected: dbConnected,
+    mongodb_state: mongoose.connection.readyState,
+    user_count: userCount
   });
 });
 
@@ -324,6 +336,13 @@ app.post("/api/auth/logout", async (req, res) => {
 });
 
 app.get("/api/auth/me", (req, res) => {
+  console.log('Auth/me check:', {
+    hasSession: !!req.session,
+    hasUser: !!req.session.user,
+    sessionId: req.sessionID,
+    dbConnected: mongoose.connection.readyState === 1
+  });
+  
   if (req.session.user) {
     res.json({ success: true, user: req.session.user });
   } else {
