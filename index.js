@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const session = require("express-session");
-const MongoStore = require("connect-mongo");
 const helmet = require("helmet");
 const compression = require("compression");
 const morgan = require("morgan");
@@ -76,15 +75,10 @@ app.use(
   })
 );
 app.use(express.json());
-// Configure session store (only if MongoDB URI is available)
-let sessionStore = null;
-if (process.env.MONGODB_URI) {
-  sessionStore = MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI,
-    dbName: 'ray-sam',
-    touchAfter: 24 * 3600 // lazy session update
-  });
-}
+// Use in-memory session store for now
+// MongoDB session store causes issues in development
+let sessionStore = undefined;
+console.log('Using in-memory session store');
 
 app.use(
   session({
@@ -93,13 +87,21 @@ app.use(
     saveUninitialized: false,
     store: sessionStore || undefined,
     cookie: {
-      secure: true, // HTTPS on Render requires secure cookies
+      secure: false, // Use false for development
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: 'lax', // Works with same domain
+      sameSite: 'lax',
       httpOnly: true
     },
   })
 );
+
+console.log('Session middleware configured. Store: In-Memory');
+
+// Request logging middleware to debug sessions
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url} - Session ID: ${req.sessionID} - Has User: ${!!req.session.user}`);
+  next();
+});
 
 // Database connection check middleware
 const checkDatabase = (req, res, next) => {
@@ -275,12 +277,14 @@ async function startServer() {
   }
 }
 
-// Start the server
-startServer();
-
 // Basic route - redirect to login page
 app.get("/", (req, res) => {
-  res.redirect("/login.html");
+  // Check if user is authenticated
+  if (req.session.user) {
+    res.redirect("/index.html");
+  } else {
+    res.redirect("/login.html");
+  }
 });
 
 // Explicit route for login page
@@ -314,6 +318,8 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
     }
     
     const user = await loginUser(username, password);
+    
+    // Save user to session
     req.session.user = user;
     
     console.log('Login successful for user:', user.name);
@@ -346,7 +352,8 @@ app.get("/api/auth/me", (req, res) => {
     hasSession: !!req.session,
     hasUser: !!req.session.user,
     sessionId: req.sessionID,
-    dbConnected: mongoose.connection.readyState === 1
+    dbConnected: mongoose.connection.readyState === 1,
+    cookies: req.headers.cookie
   });
   
   if (req.session.user) {
@@ -981,4 +988,6 @@ app.delete("/api/clear-requests", requireAuth, async (req, res) => {
   }
 });
 
+// Start the server
+startServer();
 
