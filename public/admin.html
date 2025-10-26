@@ -332,6 +332,20 @@
         loadAuditLogs();
       }
     });
+
+    // Add developer footer
+    document.addEventListener('DOMContentLoaded', function() {
+      const footer = document.createElement('footer');
+      footer.className = 'developer-footer';
+      footer.innerHTML = `
+        <div style="text-align: center; padding: 1rem; color: #6c757d; font-size: 0.875rem; margin-top: 2rem;">
+          <p style="margin: 0; font-weight: 500;">شرکت مهندسی نرم‌افزار رایورز © 1404</p>
+          <p style="margin: 0.25rem 0; font-size: 0.8rem;">رایسا و سامیار</p>
+          <p style="margin: 0; font-size: 0.75rem; opacity: 0.8;">توسعه‌دهنده: عرفان احمدوند</p>
+        </div>
+      `;
+      document.body.appendChild(footer);
+    });
   </script>
 </body>
 </html>
