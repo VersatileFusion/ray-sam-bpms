@@ -1,18 +1,46 @@
-# Node.js dependencies
-node_modules/
-
 # Environment variables
 .env
 atlas.env
+*.env
+
+# User credentials (KEEP THESE SECURE!)
+users-data.json
+customers-logins.csv
+
+# Dependencies
+node_modules/
 
 # Logs
+logs/
+*.log
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
 
 # OS files
 .DS_Store
 Thumbs.db
 
-# Optional: VSCode settings
-.vscode/ 
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Backup files
+*.old.js
+*.backup.*
+
+# Excel files
+*.xlsx
+!فروش رایسا و سامیار.xlsx
+
+# Archives
+*.rar
+*.zip
+*.tar.gz
+
+# Database dumps
+dump/

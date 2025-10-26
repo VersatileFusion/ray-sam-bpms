@@ -27,6 +27,21 @@
       --muted: #6b7280;
     }
 
+    /* Dark mode colors */
+    [data-theme="dark"] {
+      --primary: #5c6bc0;
+      --secondary: #78909c;
+      --success: #66bb6a;
+      --danger: #ef5350;
+      --warning: #ffa726;
+      --info: #42a5f5;
+      --border: #37474f;
+      --bg: #1a1a1a;
+      --card-bg: #263238;
+      --text: #eceff1;
+      --muted: #90a4ae;
+    }
+
     body {
       background: var(--bg);
       min-height: 100vh;
@@ -37,6 +52,7 @@
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       font-feature-settings: "ss01" on, "ss02" on;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
     .main-center {
@@ -366,6 +382,335 @@
       box-shadow: none;
     }
 
+    /* Sidebar Styles */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 320px;
+      height: 100vh;
+      background: var(--card-bg);
+      box-shadow: -2px 0 15px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      z-index: 1000;
+      transition: transform 0.3s ease;
+      border-left: 1px solid var(--border);
+    }
+
+    .sidebar.collapsed {
+      transform: translateX(100%);
+    }
+
+    .sidebar-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1001;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(26, 35, 126, 0.3);
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--secondary);
+      transform: scale(1.05);
+    }
+
+    .sidebar-open .sidebar-toggle {
+      right: 340px;
+    }
+
+    .content-wrapper {
+      margin-right: 0;
+      transition: margin-right 0.3s ease;
+    }
+
+    .sidebar-open .content-wrapper {
+      margin-right: 320px;
+    }
+
+    .user-profile {
+      padding: 2rem 1.5rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .user-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #fff;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0 auto 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .user-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .user-role {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 1rem;
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .user-last-login {
+      font-size: 0.8rem;
+      opacity: 0.9;
+    }
+
+    .theme-toggle {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: #fff;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: all 0.3s;
+      margin-top: 0.5rem;
+    }
+
+    .theme-toggle:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #f8f9fa, #fff);
+      padding: 1rem;
+      border-radius: 0.75rem;
+      text-align: center;
+      border: 1px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    .sidebar-section {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-section-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .filter-item {
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f8f9fa;
+      border: 1px solid transparent;
+    }
+
+    .filter-item:hover {
+      background: var(--bg);
+      border-color: var(--border);
+    }
+
+    .filter-item.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .filter-item.active .filter-count {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+
+    .filter-icon {
+      margin-left: 0.5rem;
+    }
+
+    .filter-count {
+      background: var(--border);
+      padding: 0.2rem 0.6rem;
+      border-radius: 1rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .chart-container {
+      padding: 1rem;
+      background: #fff;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .chart-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: var(--text);
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+      }
+      
+      .sidebar-open .content-wrapper {
+        margin-right: 0;
+      }
+      
+      .sidebar-open .sidebar-toggle {
+        right: 20px;
+      }
+
+      body {
+        font-size: 14px;
+      }
+
+      .main-center {
+        margin: 1rem auto;
+        padding: 0 0.5rem;
+      }
+
+      .glass-card {
+        padding: 1rem;
+        margin: 1rem 0;
+      }
+
+      .table {
+        font-size: 0.85rem;
+      }
+
+      .btn {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem;
+      }
+
+      .form-control, .form-select {
+        font-size: 0.9rem;
+        padding: 0.6rem 0.8rem;
+      }
+
+      .col-md-3, .col-md-6 {
+        margin-bottom: 0.75rem;
+      }
+
+      .user-avatar {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+      }
+
+      .stat-card {
+        padding: 0.75rem;
+      }
+
+      .stat-value {
+        font-size: 1.4rem;
+      }
+
+      .chart-container {
+        padding: 0.75rem;
+      }
+
+      /* Make table scrollable on mobile */
+      .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Hide less important columns on mobile */
+      .table th:nth-child(8),
+      .table td:nth-child(8),
+      .table th:nth-child(10),
+      .table td:nth-child(10),
+      .table th:nth-child(13),
+      .table td:nth-child(13),
+      .table th:nth-child(14),
+      .table td:nth-child(14) {
+        display: none;
+      }
+
+      .operations-cell {
+        min-width: 120px;
+      }
+
+      .operations-cell .btn-group {
+        flex-direction: column;
+      }
+
+      .operations-cell .btn-sm {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.4rem;
+      }
+
+      .pagination-wrapper {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+      }
+
+      .page-size-selector {
+        font-size: 0.85rem;
+      }
+    }
+
     /* Status colors */
     .bg-danger {
       background: var(--danger) !important;
@@ -381,10 +726,376 @@
       background: var(--success) !important;
       color: #fff !important;
     }
+
+    /* Loading States */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      backdrop-filter: blur(4px);
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+      border-radius: 4px;
+    }
+
+    @keyframes loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    [data-theme="dark"] .skeleton {
+      background: linear-gradient(90deg, #37474f 25%, #263238 50%, #37474f 75%);
+      background-size: 200% 100%;
+    }
+
+    .skeleton-row {
+      height: 50px;
+      margin-bottom: 10px;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--muted);
+    }
+
+    .empty-state-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .empty-state-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .empty-state-message {
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Notification badge */
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--danger);
+      color: #fff;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    /* Operations Column Styling */
+    .operations-cell {
+      white-space: nowrap;
+      min-width: 200px;
+    }
+
+    .operations-cell .btn {
+      margin: 0.15rem;
+    }
+
+    .operations-cell .btn-sm {
+      padding: 0.35rem 0.6rem;
+      font-size: 0.85rem;
+    }
+
+    .icon-count {
+      display: inline-block;
+      margin: 0 0.25rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* Pagination Styling */
+    .pagination-wrapper {
+      padding: 1.5rem;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pagination {
+      margin: 0;
+    }
+
+    .page-link {
+      color: var(--primary);
+      border-color: var(--border);
+      font-family: Vazirmatn, sans-serif;
+      font-weight: 600;
+      padding: 0.5rem 0.75rem;
+    }
+
+    .page-link:hover {
+      background: var(--bg);
+      color: var(--secondary);
+    }
+
+    .page-item.active .page-link {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .page-item.disabled .page-link {
+      color: var(--muted);
+      background: var(--bg);
+    }
+
+    .page-info {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .page-size-selector {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .page-size-selector select {
+      padding: 0.35rem 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 0.375rem;
+      font-family: Vazirmatn, sans-serif;
+      background: var(--card-bg);
+      color: var(--text);
+    }
   </style>
 </head>
 
-<body>
+<body class="sidebar-open">
+  <!-- Sidebar Toggle Button -->
+  <button class="sidebar-toggle" id="sidebarToggle">
+    <i class="bi bi-list"></i>
+  </button>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <!-- User Profile Section -->
+    <div class="user-profile">
+      <div class="user-avatar" id="userAvatar">
+        <i class="bi bi-person"></i>
+      </div>
+      <div class="user-name" id="userName">کاربر</div>
+      <div class="user-role" id="userRole">
+        <i class="bi bi-shield-check"></i> کاربر
+      </div>
+      <div class="user-last-login" id="userLastLogin">
+        <i class="bi bi-clock"></i> آخرین ورود: -
+      </div>
+      <button class="theme-toggle" id="themeToggle" title="تغییر حالت تم">
+        <i class="bi bi-moon-stars-fill"></i>
+      </button>
+      <div id="adminPanelButton" style="display: none;">
+        <button class="btn btn-info btn-sm mt-2 w-100" onclick="window.location.href='/admin.html'">
+          <i class="bi bi-shield-lock"></i> پنل مدیریت
+        </button>
+      </div>
+      <button class="btn btn-danger btn-sm mt-2 w-100" id="sidebarLogoutBtn">
+        <i class="bi bi-box-arrow-right"></i> خروج
+      </button>
+    </div>
+
+    <!-- Statistics Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-value" id="statTotal">0</span>
+        <span class="stat-label">همه درخواست‌ها</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="statMy">0</span>
+        <span class="stat-label">درخواست‌های من</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="statOpen">0</span>
+        <span class="stat-label">باز</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="statClosed">0</span>
+        <span class="stat-label">انجام شده</span>
+      </div>
+    </div>
+
+    <!-- Quick Filters -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">
+        <i class="bi bi-funnel"></i>
+        فیلترهای سریع
+      </div>
+      <div class="filter-item active" data-filter="all">
+        <span>
+          <i class="bi bi-list-ul filter-icon"></i>
+          همه درخواست‌ها
+        </span>
+        <span class="filter-count" id="filterCountAll">0</span>
+      </div>
+      <div class="filter-item" data-filter="my">
+        <span>
+          <i class="bi bi-person-check filter-icon"></i>
+          درخواست‌های من
+        </span>
+        <span class="filter-count" id="filterCountMy">0</span>
+      </div>
+      <div class="filter-item" data-filter="open">
+        <span>
+          <i class="bi bi-circle filter-icon"></i>
+          درخواست‌های باز
+        </span>
+        <span class="filter-count" id="filterCountOpen">0</span>
+      </div>
+      <div class="filter-item" data-filter="in-progress">
+        <span>
+          <i class="bi bi-hourglass-split filter-icon"></i>
+          در حال اقدام
+        </span>
+        <span class="filter-count" id="filterCountProgress">0</span>
+      </div>
+      <div class="filter-item" data-filter="closed">
+        <span>
+          <i class="bi bi-check-circle filter-icon"></i>
+          انجام شده
+        </span>
+        <span class="filter-count" id="filterCountClosed">0</span>
+      </div>
+    </div>
+
+    <!-- System Filters -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">
+        <i class="bi bi-gear"></i>
+        سیستم‌ها
+      </div>
+      <div class="filter-item" data-filter="system-مالی">
+        <span>
+          <i class="bi bi-calculator filter-icon"></i>
+          مالی
+        </span>
+        <span class="filter-count" id="filterCountFinance">0</span>
+      </div>
+      <div class="filter-item" data-filter="system-انبار">
+        <span>
+          <i class="bi bi-box-seam filter-icon"></i>
+          انبار
+        </span>
+        <span class="filter-count" id="filterCountWarehouse">0</span>
+      </div>
+      <div class="filter-item" data-filter="system-فروش">
+        <span>
+          <i class="bi bi-cart filter-icon"></i>
+          فروش
+        </span>
+        <span class="filter-count" id="filterCountSales">0</span>
+      </div>
+      <div class="filter-item" data-filter="system-دریافت و پرداخت">
+        <span>
+          <i class="bi bi-cash-coin filter-icon"></i>
+          دریافت و پرداخت
+        </span>
+        <span class="filter-count" id="filterCountPayments">0</span>
+      </div>
+      <div class="filter-item" data-filter="system-سامیار">
+        <span>
+          <i class="bi bi-tools filter-icon"></i>
+          سامیار
+        </span>
+        <span class="filter-count" id="filterCountSamiar">0</span>
+      </div>
+      <div class="filter-item" data-filter="system-حقوق و دستمزد">
+        <span>
+          <i class="bi bi-cash-stack filter-icon"></i>
+          حقوق و دستمزد
+        </span>
+        <span class="filter-count" id="filterCountPayroll">0</span>
+      </div>
+      <div class="filter-item" data-filter="system-اموال و دارایی های ثابت">
+        <span>
+          <i class="bi bi-building filter-icon"></i>
+          اموال و دارایی های ثابت
+        </span>
+        <span class="filter-count" id="filterCountAssets">0</span>
+      </div>
+    </div>
+
+    <!-- Activity Section with Charts -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">
+        <i class="bi bi-graph-up"></i>
+        فعالیت
+      </div>
+      
+      <!-- Status Distribution Chart -->
+      <div class="chart-container">
+        <div class="chart-title">توزیع وضعیت درخواست‌ها</div>
+        <canvas id="statusChart" height="180"></canvas>
+      </div>
+      
+      <!-- System Distribution Chart -->
+      <div class="chart-container">
+        <div class="chart-title">درخواست‌ها بر اساس سیستم</div>
+        <canvas id="systemChart" height="200"></canvas>
+      </div>
+      
+      <!-- My Activity Stats -->
+      <div class="chart-container">
+        <div class="chart-title">فعالیت من</div>
+        <div style="padding: 0.5rem 0;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span style="color: var(--muted); font-size: 0.9rem;">ثبت شده:</span>
+            <span style="font-weight: 700; color: var(--success);" id="myCreatedCount">0</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span style="color: var(--muted); font-size: 0.9rem;">ویرایش شده:</span>
+            <span style="font-weight: 700; color: var(--warning);" id="myEditedCount">0</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--muted); font-size: 0.9rem;">امروز:</span>
+            <span style="font-weight: 700; color: var(--info);" id="myTodayCount">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Content Wrapper -->
+  <div class="content-wrapper">
   <div class="main-center">
     <div class="glass-card mb-4">
       <div class="card-header d-flex align-items-center justify-content-between">
@@ -464,6 +1175,8 @@
               <option value="فروش">فروش</option>
               <option value="دریافت و پرداخت">دریافت و پرداخت</option>
               <option value="سامیار">سامیار</option>
+              <option value="حقوق و دستمزد">حقوق و دستمزد</option>
+              <option value="اموال و دارایی های ثابت">اموال و دارایی های ثابت</option>
             </select>
           </div>
           <div class="col-md-3 col-12">
@@ -486,6 +1199,23 @@
           <div class="col-md-3 col-12">
             <input type="text" class="form-control" name="closeDescription" placeholder="شرح بستن درخواست (اختیاری)" />
           </div>
+          <div class="col-md-3 col-12">
+            <select class="form-select" name="priority">
+              <option value="متوسط">اولویت: متوسط</option>
+              <option value="کم">کم</option>
+              <option value="زیاد">زیاد</option>
+              <option value="فوری">فوری</option>
+            </select>
+          </div>
+          <div class="col-md-3 col-12">
+            <input type="text" class="form-control" id="dueDateInput" name="dueDate" placeholder="تاریخ سررسید (اختیاری)" autocomplete="off" />
+          </div>
+          <div class="col-md-3 col-12">
+            <select class="form-select" name="assignedToId" id="assignedToSelect">
+              <option value="">اختصاص به... (اختیاری)</option>
+            </select>
+          </div>
+          <div class="col-md-3 col-12"></div>
           <div class="col-12">
             <button type="submit" class="btn btn-primary mb-2 w-100">
               <i class="bi bi-send"></i> ثبت درخواست
@@ -499,6 +1229,12 @@
       <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
         <h4 class="mb-0"><i class="bi bi-table"></i> جدول درخواست‌ها</h4>
         <div>
+          <div class="btn-group" role="group">
+            <button id="notificationBtn" class="btn btn-light position-relative" title="اعلان‌ها">
+              <i class="bi bi-bell"></i>
+              <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+            </button>
+          </div>
           <button id="searchBtn" class="btn btn-primary ms-2">
             <i class="bi bi-search"></i> جستجو
           </button>
@@ -506,9 +1242,14 @@
             <i class="bi bi-file-earmark-excel"></i> گزارش
           </button>
 
+          <button id="bulkActionsBtn" class="btn btn-secondary ms-2" style="display: none;" title="عملیات گروهی">
+            <i class="bi bi-list-check"></i> عملیات گروهی (<span id="selectedCount">0</span>)
+          </button>
+
           <button id="logoutBtn" class="btn btn-danger ms-2">
             <i class="bi bi-box-arrow-right"></i> خروج
           </button>
+          </div>
         </div>
       </div>
       <div class="card-body p-0">
@@ -516,6 +1257,7 @@
           <table class="table table-bordered table-striped table-hover mb-0">
             <thead class="table-dark">
               <tr>
+                <th><input type="checkbox" id="selectAll" title="انتخاب همه"></th>
                 <th>تاریخ</th>
                 <th>نام مشتری</th>
                 <th>نام کاربر</th>
@@ -523,17 +1265,67 @@
                 <th>درخواست</th>
                 <th>نوع درخواست</th>
                 <th>شرح اقدام</th>
-                <th>وضعیت (بررسی)</th>
-                <th>شرح بستن درخواست</th>
-                <th>ایجاد شده توسط</th>
+                <th>اولویت</th>
+                <th>سررسید</th>
+                <th>اختصاص به</th>
+                <th>وضعیت</th>
+                <th>شرح بستن</th>
+                <th>ایجاد توسط</th>
                 <th>آخرین تغییر</th>
-                <th>ویرایش</th>
+                <th>عملیات</th>
               </tr>
             </thead>
             <tbody id="requestsTableBody">
-              <!-- Rows will be added here -->
+              <!-- Loading skeleton -->
+              <tr class="skeleton-loading" style="display: none;">
+                <td colspan="16">
+                  <div class="skeleton skeleton-row"></div>
+                  <div class="skeleton skeleton-row"></div>
+                  <div class="skeleton skeleton-row"></div>
+                  <div class="skeleton skeleton-row"></div>
+                  <div class="skeleton skeleton-row"></div>
+                </td>
+              </tr>
+              <!-- Empty state -->
+              <tr class="empty-state-row" style="display: none;">
+                <td colspan="16">
+                  <div class="empty-state">
+                    <div class="empty-state-icon">
+                      <i class="bi bi-inbox"></i>
+                    </div>
+                    <div class="empty-state-title">هیچ درخواستی یافت نشد</div>
+                    <div class="empty-state-message">برای شروع، یک درخواست جدید ثبت کنید</div>
+                    <button class="btn btn-primary" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); document.getElementById('dateInput').focus();">
+                      <i class="bi bi-plus-circle"></i> ثبت درخواست جدید
+                    </button>
+                  </div>
+                </td>
+              </tr>
             </tbody>
           </table>
+        </div>
+        <!-- Pagination Controls -->
+        <div class="pagination-wrapper">
+          <div class="page-size-selector">
+            <span>نمایش:</span>
+            <select id="pageSize" onchange="changePageSize(this.value)">
+              <option value="10" selected>10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <span>ردیف</span>
+          </div>
+          
+          <div class="page-info">
+            <span id="pageInfo">نمایش 0 از 0</span>
+          </div>
+          
+          <nav aria-label="صفحه‌بندی">
+            <ul class="pagination" id="paginationControls">
+              <!-- Pagination buttons will be generated here -->
+            </ul>
+          </nav>
         </div>
       </div>
     </div>
@@ -541,6 +1333,23 @@
       <i class="bi bi-plus-lg"></i>
     </div>
   </div>
+  </div>
+  <!-- End Content Wrapper -->
+  <!-- Request Details Modal -->
+  <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="detailsModalLabel">جزئیات درخواست</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="detailsModalBody">
+          <!-- Details will be injected here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Action History Modal -->
   <div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -563,45 +1372,107 @@
   <script src="https://unpkg.com/jalali-moment/dist/jalali-moment.browser.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script>
     const API_BASE = window.location.hostname === 'localhost' 
       ? "http://localhost:3000" 
       : "https://ray-sam-bpms.onrender.com";
     let allRequests = [];
     let currentUser = null;
+    let currentFilter = 'all';
+    let statusChart = null;
+    let systemChart = null;
+    let currentPage = 1;
+    let pageSize = 10;
+    let filteredRequests = [];
     async function loadRequests() {
-      const res = await fetch(`${API_BASE}/api/requests`, {
-        credentials: 'include'
-      });
-      if (res.status === 401) {
-        window.location.href = 'login.html';
-        return;
+      try {
+        // Show loading state
+        const tbody = document.getElementById('requestsTableBody');
+        tbody.innerHTML = '<tr class="skeleton-loading"><td colspan="16"><div class="skeleton skeleton-row"></div><div class="skeleton skeleton-row"></div><div class="skeleton skeleton-row"></div><div class="skeleton skeleton-row"></div><div class="skeleton skeleton-row"></div></td></tr>';
+        
+        const res = await fetch(`${API_BASE}/api/requests`, {
+          credentials: 'include'
+        });
+        if (res.status === 401) {
+          window.location.href = 'login.html';
+          return;
+        }
+        const requests = await res.json();
+        allRequests = requests;
+        updateStatistics(requests);
+        applyFilter(currentFilter);
+      } catch (error) {
+        console.error('Load requests error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'خطا',
+          text: 'خطا در بارگذاری درخواست‌ها'
+        });
       }
-      const requests = await res.json();
-      allRequests = requests;
-      renderRequestsTable(requests);
     }
-    // Make table rows clickable for history (except edit button)
+    // Make table rows clickable for history (except buttons)
     function attachRowHistoryListeners() {
-      document.querySelectorAll("#requestsTableBody tr").forEach((row, idx) => {
-        // Skip if row has no data-id (shouldn't happen)
-        const editBtn = row.querySelector(".edit-btn");
-        if (!editBtn) return;
-        const id = editBtn.getAttribute("data-id");
+      document.querySelectorAll("#requestsTableBody tr").forEach((row) => {
+        // Skip empty state or skeleton rows
+        if (row.classList.contains('empty-state-row') || row.classList.contains('skeleton-loading')) return;
+        
+        const historyBtn = row.querySelector(".history-btn");
+        if (!historyBtn) return;
+        const id = historyBtn.getAttribute("data-id");
+        
         // Prevent double binding
         row.onclick = null;
-        // Only attach to row, not edit button
+        
+        // Make row clickable, but not buttons
         row.addEventListener("click", function (e) {
-          if (e.target.closest(".edit-btn")) return;
+          // Don't trigger if clicking on buttons, checkboxes, or links
+          if (e.target.closest("button") || e.target.closest("input") || e.target.closest("a")) return;
           showHistoryModal(id);
         });
       });
     }
     // Call this after rendering table
     function renderRequestsTable(requests) {
+      filteredRequests = requests;
+      currentPage = 1; // Reset to first page
+      renderPage();
+    }
+
+    // Render current page
+    function renderPage() {
       const tbody = document.getElementById("requestsTableBody");
       tbody.innerHTML = "";
-      requests.forEach((r) => {
+      
+      // Show empty state if no requests
+      if (filteredRequests.length === 0) {
+        tbody.innerHTML = `
+          <tr class="empty-state-row">
+            <td colspan="16">
+              <div class="empty-state">
+                <div class="empty-state-icon">
+                  <i class="bi bi-inbox"></i>
+                </div>
+                <div class="empty-state-title">هیچ درخواستی یافت نشد</div>
+                <div class="empty-state-message">برای شروع، یک درخواست جدید ثبت کنید</div>
+                <button class="btn btn-primary" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); setTimeout(() => document.getElementById('dateInput').focus(), 300);">
+                  <i class="bi bi-plus-circle"></i> ثبت درخواست جدید
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+        updatePaginationInfo(0, 0, 0);
+        return;
+      }
+      
+      // Calculate pagination
+      const totalPages = Math.ceil(filteredRequests.length / pageSize);
+      const startIndex = (currentPage - 1) * pageSize;
+      const endIndex = Math.min(startIndex + pageSize, filteredRequests.length);
+      const pageRequests = filteredRequests.slice(startIndex, endIndex);
+      
+      pageRequests.forEach((r) => {
         const jalaliDate = moment(r.date, "YYYY-MM-DD").locale("fa").format("YYYY/MM/DD");
         let statusClass = "";
         if (r.status === "باز") statusClass = "bg-danger text-white";
@@ -626,8 +1497,48 @@
           '<span class="badge bg-success">جدید</span>' : 
           '<span class="badge bg-warning">ویرایش شده</span>';
         
+        // Priority badge colors
+        let priorityClass = 'bg-secondary';
+        if (r.priority === 'فوری') priorityClass = 'bg-danger';
+        else if (r.priority === 'زیاد') priorityClass = 'bg-warning';
+        else if (r.priority === 'متوسط') priorityClass = 'bg-info';
+        else if (r.priority === 'کم') priorityClass = 'bg-success';
+        
+        const priorityBadge = r.priority ? 
+          `<span class="badge ${priorityClass}">${r.priority}</span>` : 
+          '<span class="text-muted">-</span>';
+        
+        // Due date display
+        const dueDate = r.dueDate ? 
+          moment(r.dueDate).locale('fa').format('YYYY/MM/DD') : 
+          '<span class="text-muted">-</span>';
+        
+        // Check if overdue
+        const isOverdue = r.dueDate && moment(r.dueDate).isBefore(moment(), 'day');
+        const dueDateDisplay = isOverdue ? 
+          `<span class="text-danger"><i class="bi bi-exclamation-triangle"></i> ${dueDate}</span>` : 
+          dueDate;
+        
+        // Assigned to
+        const assignedTo = r.assignedTo && r.assignedTo.name ? 
+          `<span class="badge bg-primary">${r.assignedTo.name}</span>` : 
+          '<span class="text-muted">-</span>';
+        
+        // Comment count badge
+        const commentCount = r.comments && r.comments.length > 0 ? 
+          `<span class="badge bg-info icon-count" title="${r.comments.length} نظر">
+            <i class="bi bi-chat-dots"></i> ${r.comments.length}
+          </span>` : '';
+        
+        // Attachment count badge
+        const attachmentCount = r.attachments && r.attachments.length > 0 ? 
+          `<span class="badge bg-secondary icon-count" title="${r.attachments.length} پیوست">
+            <i class="bi bi-paperclip"></i> ${r.attachments.length}
+          </span>` : '';
+        
         tbody.innerHTML += `
           <tr class="fade-in-row">
+            <td class="text-center"><input type="checkbox" class="request-checkbox" data-id="${r._id}"></td>
             <td>${jalaliDate}</td>
             <td>${r.customerName}</td>
             <td>${r.userName}</td>
@@ -635,21 +1546,67 @@
             <td>${r.request}</td>
             <td>${r.requestType}</td>
             <td>${r.actionDescription}</td>
-            <td class='${statusClass}'>${r.status} ${statusIndicator}</td>
+            <td class="text-center">${priorityBadge}</td>
+            <td class="text-center">${dueDateDisplay}</td>
+            <td class="text-center">${assignedTo}</td>
+            <td class='${statusClass} text-center'>${r.status} ${statusIndicator}</td>
             <td>${r.closeDescription || ""}</td>
-            <td>${createdBy}</td>
-            <td>${lastModified}</td>
-            <td><button class='btn btn-sm btn-warning edit-btn' data-id='${r._id}'><i class="bi bi-pencil-square"></i> ویرایش</button></td>
+            <td class="text-center">${createdBy}</td>
+            <td class="text-center">${lastModified}</td>
+            <td class="operations-cell text-center">
+              <div class="btn-group" role="group">
+                <button class='btn btn-sm btn-warning edit-btn' data-id='${r._id}' title="ویرایش">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class='btn btn-sm btn-info detail-btn' data-id='${r._id}' title="جزئیات و نظرات">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button class='btn btn-sm btn-secondary history-btn' data-id='${r._id}' title="تاریخچه">
+                  <i class="bi bi-clock-history"></i>
+                </button>
+              </div>
+              <div class="mt-1">
+                ${commentCount}
+                ${attachmentCount}
+              </div>
+            </td>
           </tr>
         `;
       });
+      // Attach detail button listeners
+      document.querySelectorAll(".detail-btn").forEach((btn) => {
+        btn.addEventListener("click", async function (e) {
+          e.stopPropagation();
+          const id = this.getAttribute("data-id");
+          await showRequestDetails(id);
+        });
+      });
+
+      // Attach bulk selection listeners
+      document.querySelectorAll(".request-checkbox").forEach((checkbox) => {
+        checkbox.addEventListener("change", updateBulkActions);
+      });
+
+      // Attach history button listeners
+      document.querySelectorAll(".history-btn").forEach((btn) => {
+        btn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          const id = this.getAttribute("data-id");
+          showHistoryModal(id);
+        });
+      });
+
+      // Update pagination info and controls
+      updatePaginationInfo(startIndex + 1, endIndex, filteredRequests.length);
+      renderPaginationControls(totalPages);
+
       // Attach edit and history listeners
       document.querySelectorAll(".edit-btn").forEach((btn) => {
         btn.addEventListener("click", async function (e) {
           e.stopPropagation();
           const id = this.getAttribute("data-id");
           // Find the row data
-          const req = requests.find((x) => x._id === id);
+          const req = filteredRequests.find((x) => x._id === id);
           const { value: formValues } = await Swal.fire({
             title: "ویرایش درخواست",
             html:
@@ -661,18 +1618,38 @@
                 .format("YYYY/MM/DD")}'><br>` +
               `<select id='swal-customerName' class='swal2-input'><option value='دریانورد'>دریانورد</option><option value='رادین پارسه اروند'>رادین پارسه اروند</option><option value='محمد مهدی خجسته'>محمد مهدی خجسته</option><option value='آرون صنعت شیمی'>آرون صنعت شیمی</option><option value='زهرا اسماعیلی'>زهرا اسماعیلی</option><option value='امان اله رییسی'>امان اله رییسی</option><option value='شرکت ویرا مهر'>شرکت ویرا مهر</option><option value='تجارت گستر آریا نام روبین دژ'>تجارت گستر آریا نام روبین دژ</option><option value='نوسازان منطقه جنوب شرق'>نوسازان منطقه جنوب شرق</option><option value='کوزو توپلوکونوت انشاات'>کوزو توپلوکونوت انشاات</option><option value='کوزو پارس'>کوزو پارس</option><option value='ماموت تلکا'>ماموت تلکا</option><option value='اپتیک فناور مهر آوا'>اپتیک فناور مهر آوا</option><option value='نماد داریس'>نماد داریس</option><option value='سیویل سازه ولاش'>سیویل سازه ولاش</option><option value='زرین کوه'>زرین کوه</option><option value='طراح گرافیک'>طراح گرافیک</option><option value='آقای ایمان خاک تاریک'>آقای ایمان خاک تاریک</option><option value='فرصت آینده پارس'>فرصت آینده پارس</option><option value='سرمایه گذاری نیکی گستر'>سرمایه گذاری نیکی گستر</option><option value='سبدگردان آمال'>سبدگردان آمال</option><option value='پیشگامان تجارت روژین'>پیشگامان تجارت روژین</option><option value='دندان تجهیز مانا'>دندان تجهیز مانا</option><option value='پژوهشکده آب و خاک آبادیس'>پژوهشکده آب و خاک آبادیس</option><option value='آرمان اندیشان آمیتیس خاورمیانه'>آرمان اندیشان آمیتیس خاورمیانه</option><option value='آقای فخیمی'>آقای فخیمی</option><option value='آرکا شیمی سبز'>آرکا شیمی سبز</option><option value='پارس کنسولت'>پارس کنسولت</option><option value='سیویل سازه ولاش'>سیویل سازه ولاش</option><option value='زرین کوه'>زرین کوه</option><option value='مدیریت توسعه خودکار رایان'>مدیریت توسعه خودکار رایان</option><option value='آرین مهراز بریا'>آرین مهراز بریا</option><option value='آقای رضا رنجبرزاده'>آقای رضا رنجبرزاده</option><option value='دندان تجهیز مانا'>دندان تجهیز مانا</option><option value='نوید تجارت سبز'>نوید تجارت سبز</option><option value='هفت قلعه مینا'>هفت قلعه مینا</option><option value='تک شمس نامدار اروند'>تک شمس نامدار اروند</option><option value='فرهان بنادر اروند'>فرهان بنادر اروند</option><option value='دریا پیمای لیان آریا'>دریا پیمای لیان آریا</option><option value='رادین پارسه اروند'>رادین پارسه اروند</option><option value='ستاره بندر سفید'>ستاره بندر سفید</option><option value='مایا بنادر اروند'>مایا بنادر اروند</option><option value='شرکت داده های امن پارسه ریما'>شرکت داده های امن پارسه ریما</option><option value='تامین مسکن نوید ایرانیان'>تامین مسکن نوید ایرانیان</option><option value='تامین مسکن جوانان'>تامین مسکن جوانان</option><option value='آقای سیفی'>آقای سیفی</option><option value='آرمان بخش بلوط'>آرمان بخش بلوط</option><option value='شرکت کشت و صنعت زرین مهر قومس'>شرکت کشت و صنعت زرین مهر قومس</option></select><br>` +
               `<input id='swal-userName' class='swal2-input' placeholder='نام کاربر' value='${req.userName}'><br>` +
-              `<select id='swal-system' class='swal2-input'><option value='مالی'>مالی</option><option value='انبار'>انبار</option><option value='فروش'>فروش</option><option value='دریافت و پرداخت'>دریافت و پرداخت</option><option value='سامیار'>سامیار</option></select><br>` +
+              `<select id='swal-system' class='swal2-input'><option value='مالی'>مالی</option><option value='انبار'>انبار</option><option value='فروش'>فروش</option><option value='دریافت و پرداخت'>دریافت و پرداخت</option><option value='سامیار'>سامیار</option><option value='حقوق و دستمزد'>حقوق و دستمزد</option><option value='اموال و دارایی های ثابت'>اموال و دارایی های ثابت</option></select><br>` +
               `<input id='swal-request' class='swal2-input' placeholder='درخواست' value='${req.request}'><br>` +
               `<input id='swal-requestType' class='swal2-input' placeholder='نوع درخواست' value='${req.requestType}'><br>` +
               `<input id='swal-actionDescription' class='swal2-input' placeholder='شرح اقدام' value='${req.actionDescription}'><br>` +
               `<select id='swal-status' class='swal2-input'><option value='انجام'>انجام</option><option value='باز'>باز</option><option value='در درست اقدام'>در درست اقدام</option></select><br>` +
-              `<input id='swal-closeDescription' class='swal2-input' placeholder='شرح بستن درخواست (اختیاری)' value='${req.closeDescription || ""}'><br>`,
+              `<input id='swal-closeDescription' class='swal2-input' placeholder='شرح بستن درخواست (اختیاری)' value='${req.closeDescription || ""}'><br>` +
+              `<select id='swal-priority' class='swal2-input'><option value='کم'>کم</option><option value='متوسط'>متوسط</option><option value='زیاد'>زیاد</option><option value='فوری'>فوری</option></select><br>` +
+              `<input id='swal-dueDate' class='swal2-input' placeholder='تاریخ سررسید' value='${req.dueDate ? moment(req.dueDate).locale('fa').format('YYYY/MM/DD') : ""}'><br>` +
+              `<select id='swal-assignedTo' class='swal2-input'><option value="">اختصاص به...</option></select><br>`,
             focusConfirm: false,
-            didOpen: () => {
+            didOpen: async () => {
               document.getElementById("swal-customerName").value = req.customerName;
               document.getElementById("swal-system").value = req.system;
               document.getElementById("swal-status").value = req.status;
               document.getElementById("swal-closeDescription").value = req.closeDescription || "";
+              document.getElementById("swal-priority").value = req.priority || "متوسط";
+              
+              // Load users for assignment
+              const userResponse = await fetch(`${API_BASE}/api/users`, { credentials: 'include' });
+              const userData = await userResponse.json();
+              if (userData.success && userData.users) {
+                const assignSelect = document.getElementById("swal-assignedTo");
+                userData.users.forEach(user => {
+                  const option = document.createElement('option');
+                  option.value = user._id;
+                  option.textContent = user.name;
+                  assignSelect.appendChild(option);
+                });
+                if (req.assignedTo?.userId) {
+                  assignSelect.value = req.assignedTo.userId;
+                }
+              }
             },
             preConfirm: () => {
               return [
@@ -685,6 +1662,9 @@
                 document.getElementById("swal-actionDescription").value,
                 document.getElementById("swal-status").value,
                 document.getElementById("swal-closeDescription").value,
+                document.getElementById("swal-priority").value,
+                document.getElementById("swal-dueDate").value,
+                document.getElementById("swal-assignedTo").value,
               ];
             },
           });
@@ -694,6 +1674,7 @@
               .from(formValues[0], "fa", "YYYY/MM/DD")
               .locale("en")
               .format("YYYY-MM-DD");
+            
             const updatedData = {
               date: gregorianDate,
               customerName: formValues[1],
@@ -704,7 +1685,22 @@
               actionDescription: formValues[6],
               status: formValues[7],
               closeDescription: formValues[8],
+              priority: formValues[9],
+              dueDate: formValues[10] ? moment.from(formValues[10], 'fa', 'YYYY/MM/DD').toISOString() : null,
             };
+            
+            // Add assignment if selected
+            if (formValues[11]) {
+              const userResponse = await fetch(`${API_BASE}/api/users`, { credentials: 'include' });
+              const userData = await userResponse.json();
+              const selectedUser = userData.users.find(u => u._id === formValues[11]);
+              if (selectedUser) {
+                updatedData.assignedTo = {
+                  userId: selectedUser._id,
+                  name: selectedUser.name
+                };
+              }
+            }
             const res = await fetch(`${API_BASE}/api/requests/${id}`, {
               method: "PUT",
               headers: {
@@ -732,6 +1728,125 @@
       });
       attachRowHistoryListeners();
     }
+
+    // Update pagination info text
+    function updatePaginationInfo(start, end, total) {
+      const pageInfo = document.getElementById('pageInfo');
+      if (total === 0) {
+        pageInfo.textContent = 'نمایش 0 از 0';
+      } else {
+        pageInfo.textContent = `نمایش ${start} تا ${end} از ${total}`;
+      }
+    }
+
+    // Render pagination controls
+    function renderPaginationControls(totalPages) {
+      const controls = document.getElementById('paginationControls');
+      controls.innerHTML = '';
+      
+      if (totalPages <= 1) {
+        return;
+      }
+
+      // Previous button
+      const prevItem = document.createElement('li');
+      prevItem.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+      prevItem.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${currentPage - 1}); return false;">قبلی</a>`;
+      controls.appendChild(prevItem);
+
+      // Page numbers
+      const maxVisible = 5;
+      let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+      let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+      
+      if (endPage - startPage < maxVisible - 1) {
+        startPage = Math.max(1, endPage - maxVisible + 1);
+      }
+
+      // First page
+      if (startPage > 1) {
+        const firstItem = document.createElement('li');
+        firstItem.className = 'page-item';
+        firstItem.innerHTML = `<a class="page-link" href="#" onclick="goToPage(1); return false;">1</a>`;
+        controls.appendChild(firstItem);
+        
+        if (startPage > 2) {
+          const dots = document.createElement('li');
+          dots.className = 'page-item disabled';
+          dots.innerHTML = '<a class="page-link">...</a>';
+          controls.appendChild(dots);
+        }
+      }
+
+      // Page numbers
+      for (let i = startPage; i <= endPage; i++) {
+        const pageItem = document.createElement('li');
+        pageItem.className = `page-item ${i === currentPage ? 'active' : ''}`;
+        pageItem.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${i}); return false;">${i}</a>`;
+        controls.appendChild(pageItem);
+      }
+
+      // Last page
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+          const dots = document.createElement('li');
+          dots.className = 'page-item disabled';
+          dots.innerHTML = '<a class="page-link">...</a>';
+          controls.appendChild(dots);
+        }
+        
+        const lastItem = document.createElement('li');
+        lastItem.className = 'page-item';
+        lastItem.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${totalPages}); return false;">${totalPages}</a>`;
+        controls.appendChild(lastItem);
+      }
+
+      // Next button
+      const nextItem = document.createElement('li');
+      nextItem.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+      nextItem.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${currentPage + 1}); return false;">بعدی</a>`;
+      controls.appendChild(nextItem);
+    }
+
+    // Go to specific page
+    function goToPage(page) {
+      const totalPages = Math.ceil(filteredRequests.length / pageSize);
+      if (page < 1 || page > totalPages) return;
+      
+      currentPage = page;
+      renderPage();
+      
+      // Scroll to table
+      document.querySelector('.glass-card.mb-4:nth-child(2)').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Change page size
+    function changePageSize(newSize) {
+      pageSize = parseInt(newSize);
+      currentPage = 1;
+      renderPage();
+    }
+    
+    // Load users for assignment dropdown
+    async function loadUsers() {
+      try {
+        const response = await fetch(`${API_BASE}/api/users`, { credentials: 'include' });
+        const data = await response.json();
+        
+        if (data.success && data.users) {
+          const select = document.getElementById('assignedToSelect');
+          data.users.forEach(user => {
+            const option = document.createElement('option');
+            option.value = user._id;
+            option.textContent = user.name;
+            select.appendChild(option);
+          });
+        }
+      } catch (error) {
+        console.error('Load users error:', error);
+      }
+    }
+
     $(document).ready(function () {
       // Check authentication first
       checkAuth().then(() => {
@@ -739,11 +1854,28 @@
         var todayJalali = moment().locale("fa").format("YYYY/MM/DD");
         $("#dateInput").val(todayJalali);
         loadRequests();
+        loadUsers();
       });
       
       // Add logout button event listener
       document.getElementById('logoutBtn').addEventListener('click', logout);
       
+      // Select all checkbox
+      document.getElementById('selectAll').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.request-checkbox');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+        updateBulkActions();
+      });
+      
+      // Bulk actions button
+      document.getElementById('bulkActionsBtn').addEventListener('click', showBulkActionsMenu);
+      
+      // Notification button
+      document.getElementById('notificationBtn').addEventListener('click', showNotifications);
+      
+      // Load notifications periodically
+      setInterval(loadNotifications, 30000); // Every 30 seconds
+      loadNotifications();
 
     });
     document
@@ -751,16 +1883,24 @@
       .addEventListener("submit", async function (e) {
         e.preventDefault();
         const form = e.target;
+        
+        // Get customerName - if select is disabled (for customers), use the value from the select
+        const customerNameSelect = document.querySelector('select[name="customerName"]');
+        const customerName = customerNameSelect.disabled ? customerNameSelect.value : form.customerName.value;
+        
         const data = {
           date: form.date.value,
-          customerName: form.customerName.value,
+          customerName: customerName,
           userName: form.userName.value,
           system: form.system.value,
           request: form.request.value,
           requestType: form.requestType.value,
           actionDescription: form.actionDescription.value,
-          status: form.status.value,
-          closeDescription: form.closeDescription.value,
+          status: currentUser && currentUser.role === 'customer' ? 'باز' : form.status.value,
+          closeDescription: currentUser && currentUser.role === 'customer' ? '' : form.closeDescription.value,
+          priority: form.priority.value || 'متوسط',
+          dueDate: form.dueDate.value ? moment.from(form.dueDate.value, 'fa', 'YYYY/MM/DD').toISOString() : null,
+          assignedToId: currentUser && currentUser.role === 'customer' ? null : (form.assignedToId.value || null)
         };
 
         const res = await fetch(`${API_BASE}/api/requests`, {
@@ -785,8 +1925,14 @@
             customClass: { popup: "glass-card" },
           });
           form.reset();
-          // Set today's Jalali date again after reset
-          $("#dateInput").val(moment().locale("fa").format("YYYY/MM/DD"));
+          // Reset form based on role
+          if (currentUser && currentUser.role === 'customer') {
+            // Configure form for customer
+            configureFormForRole('customer', currentUser.name);
+          } else {
+            // Set today's Jalali date again after reset
+            $("#dateInput").val(moment().locale("fa").format("YYYY/MM/DD"));
+          }
           loadRequests();
         } else {
           const err = await res.json();
@@ -812,7 +1958,7 @@
             `<input id='search-date' class='swal2-input' placeholder='تاریخ (مثال: 1404/04/22)'><br>` +
             `<input id='search-customerName' class='swal2-input' placeholder='نام مشتری'><br>` +
             `<input id='search-userName' class='swal2-input' placeholder='نام کاربر'><br>` +
-            `<select id='search-system' class='swal2-input'><option value=''>سیستم</option><option value='مالی'>مالی</option><option value='انبار'>انبار</option><option value='فروش'>فروش</option><option value='دریافت و پرداخت'>دریافت و پرداخت</option><option value='سامیار'>سامیار</option></select><br>` +
+            `<select id='search-system' class='swal2-input'><option value=''>سیستم</option><option value='مالی'>مالی</option><option value='انبار'>انبار</option><option value='فروش'>فروش</option><option value='دریافت و پرداخت'>دریافت و پرداخت</option><option value='سامیار'>سامیار</option><option value='حقوق و دستمزد'>حقوق و دستمزد</option><option value='اموال و دارایی های ثابت'>اموال و دارایی های ثابت</option></select><br>` +
             `<input id='search-request' class='swal2-input' placeholder='درخواست'><br>` +
             `<input id='search-requestType' class='swal2-input' placeholder='نوع درخواست'><br>` +
             `<input id='search-actionDescription' class='swal2-input' placeholder='شرح اقدام'><br>` +
@@ -835,8 +1981,8 @@
           cancelButtonText: "انصراف",
         });
         if (!formValues) {
-          // If cancelled, reload all requests
-          loadRequests();
+          // If cancelled, reset to show all requests
+          applyFilter(currentFilter);
           return;
         }
         // Build query params
@@ -860,8 +2006,20 @@
           credentials: 'include'
         });
         const results = await res.json();
-        allRequests = results;
-        renderRequestsTable(results);
+        // Don't update allRequests, just show search results
+        filteredRequests = results;
+        currentPage = 1;
+        renderPage();
+        
+        // Show result count
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'info',
+          title: `${results.length} درخواست یافت شد`,
+          showConfirmButton: false,
+          timer: 2000
+        });
       });
     });
     // Report button logic
@@ -875,7 +2033,7 @@
               `<input id='filter-date' class='swal2-input' placeholder='تاریخ (مثال: 1404/04/22)'><br>` +
               `<input id='filter-customerName' class='swal2-input' placeholder='نام مشتری'><br>` +
               `<input id='filter-userName' class='swal2-input' placeholder='نام کاربر'><br>` +
-              `<select id='filter-system' class='swal2-input'><option value=''>سیستم</option><option value='مالی'>مالی</option><option value='انبار'>انبار</option><option value='فروش'>فروش</option><option value='دریافت و پرداخت'>دریافت و پرداخت</option><option value='سامیار'>سامیار</option></select><br>` +
+              `<select id='filter-system' class='swal2-input'><option value=''>سیستم</option><option value='مالی'>مالی</option><option value='انبار'>انبار</option><option value='فروش'>فروش</option><option value='دریافت و پرداخت'>دریافت و پرداخت</option><option value='سامیار'>سامیار</option><option value='حقوق و دستمزد'>حقوق و دستمزد</option><option value='اموال و دارایی های ثابت'>اموال و دارایی های ثابت</option></select><br>` +
               `<input id='filter-request' class='swal2-input' placeholder='درخواست'><br>` +
               `<input id='filter-requestType' class='swal2-input' placeholder='نوع درخواست'><br>` +
               `<input id='filter-actionDescription' class='swal2-input' placeholder='شرح اقدام'><br>` +
@@ -896,8 +2054,8 @@
             showCancelButton: true,
           });
           if (!formValues) return;
-          // Filter rows by all fields (ignore empty fields)
-          const filtered = allRequests.filter((r) => {
+          // Filter rows by all fields (ignore empty fields) - use current filtered results
+          const filtered = filteredRequests.filter((r) => {
             // تاریخ: convert Gregorian to Jalali for comparison
             const jalaliDate = moment(r.date, "YYYY-MM-DD")
               .locale("fa")
@@ -969,6 +2127,7 @@
         if (response.ok) {
           const data = await response.json();
           currentUser = data.user;
+          updateUserProfile(currentUser);
           loadRequests();
         } else {
           window.location.href = '/login.html';
@@ -976,6 +2135,412 @@
       } catch (error) {
         window.location.href = '/login.html';
       }
+    }
+
+      // Update user profile in sidebar
+    function updateUserProfile(user) {
+      // Get initials for avatar
+      const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      document.getElementById('userAvatar').innerHTML = initials;
+      document.getElementById('userName').textContent = user.name;
+      
+      let roleText, roleIcon;
+      if (user.role === 'admin') {
+        roleText = 'مدیر سیستم';
+        roleIcon = 'bi-shield-fill';
+      } else if (user.role === 'customer') {
+        roleText = 'مشتری';
+        roleIcon = 'bi-person';
+      } else {
+        roleText = 'کاربر';
+        roleIcon = 'bi-shield-check';
+      }
+      document.getElementById('userRole').innerHTML = `<i class="bi ${roleIcon}"></i> ${roleText}`;
+      
+      // Show admin panel button for admins
+      if (user.role === 'admin') {
+        document.getElementById('adminPanelButton').style.display = 'block';
+      }
+      
+      // Configure form based on role
+      configureFormForRole(user.role, user.name);
+    }
+    
+    // Configure form fields based on role
+    function configureFormForRole(role, userName) {
+      const dateInput = document.getElementById('dateInput');
+      const customerNameSelect = document.querySelector('select[name="customerName"]');
+      const statusSelect = document.querySelector('select[name="status"]');
+      const statusSelectParent = statusSelect.closest('.col-md-3');
+      const closeDescriptionInput = document.querySelector('input[name="closeDescription"]').closest('.col-md-3');
+      const dueDateInput = document.querySelector('input[name="dueDate"]').closest('.col-md-3');
+      const assignedToSelect = document.querySelector('select[name="assignedToId"]').closest('.col-md-3');
+      
+      if (role === 'customer') {
+        // Auto-fill and disable date (set to today's date in Jalali)
+        var todayJalali = moment().locale("fa").format("YYYY/MM/DD");
+        dateInput.value = todayJalali;
+        dateInput.readOnly = true;
+        dateInput.style.backgroundColor = '#e9ecef';
+        dateInput.style.cursor = 'not-allowed';
+        
+        // Auto-fill and disable customerName with logged-in user's name
+        customerNameSelect.value = userName;
+        customerNameSelect.disabled = true;
+        customerNameSelect.style.backgroundColor = '#e9ecef';
+        customerNameSelect.style.cursor = 'not-allowed';
+        
+        // Remove required attribute and hide fields that customers shouldn't see
+        statusSelect.removeAttribute('required');
+        statusSelectParent.style.display = 'none';
+        closeDescriptionInput.style.display = 'none';
+        dueDateInput.style.display = 'none';
+        assignedToSelect.style.display = 'none';
+      } else {
+        // Show all fields for admin/user roles
+        dateInput.readOnly = false;
+        dateInput.style.backgroundColor = '';
+        dateInput.style.cursor = '';
+        customerNameSelect.disabled = false;
+        customerNameSelect.style.backgroundColor = '';
+        customerNameSelect.style.cursor = '';
+        
+        // Restore required attribute and show all fields
+        if (!statusSelect.hasAttribute('required')) {
+          statusSelect.setAttribute('required', '');
+        }
+        statusSelectParent.style.display = '';
+        closeDescriptionInput.style.display = '';
+        dueDateInput.style.display = '';
+        assignedToSelect.style.display = '';
+      }
+    }
+
+    // Sidebar toggle functionality
+    document.getElementById('sidebarToggle').addEventListener('click', function() {
+      document.body.classList.toggle('sidebar-open');
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('collapsed');
+      
+      const icon = this.querySelector('i');
+      if (sidebar.classList.contains('collapsed')) {
+        icon.className = 'bi bi-list';
+      } else {
+        icon.className = 'bi bi-x-lg';
+      }
+    });
+
+    // Sidebar logout button
+    document.getElementById('sidebarLogoutBtn').addEventListener('click', logout);
+
+    // Dark mode toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const savedTheme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
+    
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+    
+    themeToggle.addEventListener('click', function() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon(newTheme);
+    });
+    
+    function updateThemeIcon(theme) {
+      const icon = themeToggle.querySelector('i');
+      if (theme === 'dark') {
+        icon.className = 'bi bi-sun-fill';
+      } else {
+        icon.className = 'bi bi-moon-stars-fill';
+      }
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      // Ctrl+K: Search
+      if (e.ctrlKey && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('searchBtn').click();
+      }
+      
+      // Ctrl+N: New request (focus on date field)
+      if (e.ctrlKey && e.key === 'n') {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => document.getElementById('dateInput').focus(), 300);
+      }
+      
+      // Ctrl+S: Toggle sidebar
+      if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        document.getElementById('sidebarToggle').click();
+      }
+      
+      // Escape: Close modals/sidebar
+      if (e.key === 'Escape') {
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar.classList.contains('collapsed')) {
+          document.getElementById('sidebarToggle').click();
+        }
+      }
+      
+      // Ctrl+R: Refresh data
+      if (e.ctrlKey && e.key === 'r') {
+        e.preventDefault();
+        loadRequests();
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'info',
+          title: 'در حال بارگذاری...',
+          showConfirmButton: false,
+          timer: 1000
+        });
+      }
+      
+      // Ctrl+E: Export report
+      if (e.ctrlKey && e.key === 'e') {
+        e.preventDefault();
+        document.getElementById('reportBtn').click();
+      }
+    });
+    
+    // Show keyboard shortcuts help
+    function showKeyboardShortcuts() {
+      Swal.fire({
+        title: 'میانبرهای صفحه‌کلید',
+        html: `
+          <div style="text-align: right; direction: rtl;">
+            <p><kbd>Ctrl</kbd> + <kbd>K</kbd> - جستجو</p>
+            <p><kbd>Ctrl</kbd> + <kbd>N</kbd> - درخواست جدید</p>
+            <p><kbd>Ctrl</kbd> + <kbd>S</kbd> - نوار کناری</p>
+            <p><kbd>Ctrl</kbd> + <kbd>R</kbd> - بارگذاری مجدد</p>
+            <p><kbd>Ctrl</kbd> + <kbd>E</kbd> - گزارش Excel</p>
+            <p><kbd>Esc</kbd> - بستن</p>
+          </div>
+        `,
+        confirmButtonText: 'متوجه شدم'
+      });
+    }
+    
+    // Add help button to show shortcuts (can be triggered with ? key)
+    document.addEventListener('keydown', function(e) {
+      if (e.shiftKey && e.key === '?') {
+        e.preventDefault();
+        showKeyboardShortcuts();
+      }
+    });
+
+    // Calculate and update statistics
+    function updateStatistics(requests) {
+      if (!currentUser) return;
+      
+      const total = requests.length;
+      const myRequests = requests.filter(r => 
+        r.createdBy && r.createdBy.userId === currentUser._id
+      );
+      const openRequests = requests.filter(r => r.status === 'باز');
+      const closedRequests = requests.filter(r => r.status === 'انجام');
+      const inProgressRequests = requests.filter(r => r.status === 'در درست اقدام');
+      
+      // Update stat cards with animation
+      animateCounter('statTotal', total);
+      animateCounter('statMy', myRequests.length);
+      animateCounter('statOpen', openRequests.length);
+      animateCounter('statClosed', closedRequests.length);
+      
+      // Update filter counts
+      document.getElementById('filterCountAll').textContent = total;
+      document.getElementById('filterCountMy').textContent = myRequests.length;
+      document.getElementById('filterCountOpen').textContent = openRequests.length;
+      document.getElementById('filterCountProgress').textContent = inProgressRequests.length;
+      document.getElementById('filterCountClosed').textContent = closedRequests.length;
+      
+      // System counts
+      const systemCounts = {
+        'مالی': requests.filter(r => r.system === 'مالی').length,
+        'انبار': requests.filter(r => r.system === 'انبار').length,
+        'فروش': requests.filter(r => r.system === 'فروش').length,
+        'دریافت و پرداخت': requests.filter(r => r.system === 'دریافت و پرداخت').length,
+        'سامیار': requests.filter(r => r.system === 'سامیار').length,
+        'حقوق و دستمزد': requests.filter(r => r.system === 'حقوق و دستمزد').length,
+        'اموال و دارایی های ثابت': requests.filter(r => r.system === 'اموال و دارایی های ثابت').length,
+      };
+      
+      document.getElementById('filterCountFinance').textContent = systemCounts['مالی'];
+      document.getElementById('filterCountWarehouse').textContent = systemCounts['انبار'];
+      document.getElementById('filterCountSales').textContent = systemCounts['فروش'];
+      document.getElementById('filterCountPayments').textContent = systemCounts['دریافت و پرداخت'];
+      document.getElementById('filterCountSamiar').textContent = systemCounts['سامیار'];
+      document.getElementById('filterCountPayroll').textContent = systemCounts['حقوق و دستمزد'];
+      document.getElementById('filterCountAssets').textContent = systemCounts['اموال و دارایی های ثابت'];
+      
+      // My activity stats
+      const myCreated = myRequests.length;
+      const myEdited = requests.filter(r => 
+        r.lastModifiedBy && r.lastModifiedBy.userId === currentUser._id &&
+        (!r.createdBy || r.createdBy.userId !== currentUser._id || 
+         new Date(r.lastModifiedBy.timestamp).getTime() !== new Date(r.createdAt).getTime())
+      ).length;
+      
+      const today = moment().format('YYYY-MM-DD');
+      const myToday = myRequests.filter(r => r.date === today).length;
+      
+      document.getElementById('myCreatedCount').textContent = myCreated;
+      document.getElementById('myEditedCount').textContent = myEdited;
+      document.getElementById('myTodayCount').textContent = myToday;
+      
+      // Update charts
+      updateCharts(requests, systemCounts);
+    }
+
+    // Animate counter
+    function animateCounter(elementId, targetValue) {
+      const element = document.getElementById(elementId);
+      const currentValue = parseInt(element.textContent) || 0;
+      const duration = 500;
+      const steps = 20;
+      const increment = (targetValue - currentValue) / steps;
+      let step = 0;
+      
+      const timer = setInterval(() => {
+        step++;
+        const newValue = Math.round(currentValue + (increment * step));
+        element.textContent = newValue;
+        
+        if (step >= steps) {
+          element.textContent = targetValue;
+          clearInterval(timer);
+        }
+      }, duration / steps);
+    }
+
+    // Update charts
+    function updateCharts(requests, systemCounts) {
+      // Status distribution chart (Pie)
+      const statusCounts = {
+        'باز': requests.filter(r => r.status === 'باز').length,
+        'در حال اقدام': requests.filter(r => r.status === 'در درست اقدام').length,
+        'انجام شده': requests.filter(r => r.status === 'انجام').length,
+      };
+      
+      const statusCtx = document.getElementById('statusChart').getContext('2d');
+      if (statusChart) statusChart.destroy();
+      
+      statusChart = new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['باز', 'در حال اقدام', 'انجام شده'],
+          datasets: [{
+            data: [statusCounts['باز'], statusCounts['در حال اقدام'], statusCounts['انجام شده']],
+            backgroundColor: ['#c62828', '#f9a825', '#388e3c'],
+            borderWidth: 2,
+            borderColor: '#fff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                font: { family: 'Vazirmatn', size: 11 },
+                padding: 10,
+                usePointStyle: true
+              }
+            }
+          }
+        }
+      });
+      
+      // System distribution chart (Bar)
+      const systemCtx = document.getElementById('systemChart').getContext('2d');
+      if (systemChart) systemChart.destroy();
+      
+      systemChart = new Chart(systemCtx, {
+        type: 'bar',
+        data: {
+          labels: ['مالی', 'انبار', 'فروش', 'دریافت/پرداخت', 'سامیار', 'حقوق/دستمزد', 'اموال/ثابت'],
+          datasets: [{
+            label: 'تعداد درخواست',
+            data: [
+              systemCounts['مالی'], 
+              systemCounts['انبار'], 
+              systemCounts['فروش'], 
+              systemCounts['دریافت و پرداخت'], 
+              systemCounts['سامیار'],
+              systemCounts['حقوق و دستمزد'],
+              systemCounts['اموال و دارایی های ثابت']
+            ],
+            backgroundColor: '#1a237e',
+            borderRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                font: { family: 'Vazirmatn', size: 10 },
+                stepSize: 1
+              }
+            },
+            x: {
+              ticks: {
+                font: { family: 'Vazirmatn', size: 10 }
+              }
+            }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    // Filter functionality
+    document.querySelectorAll('.filter-item').forEach(item => {
+      item.addEventListener('click', function() {
+        const filter = this.getAttribute('data-filter');
+        
+        // Update active state
+        document.querySelectorAll('.filter-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Apply filter
+        currentFilter = filter;
+        applyFilter(filter);
+      });
+    });
+
+    // Apply filter to requests
+    function applyFilter(filter) {
+      let filtered = [...allRequests];
+      
+      if (filter === 'all') {
+        filtered = allRequests;
+      } else if (filter === 'my') {
+        filtered = allRequests.filter(r => 
+          r.createdBy && r.createdBy.userId === currentUser._id
+        );
+      } else if (filter === 'open') {
+        filtered = allRequests.filter(r => r.status === 'باز');
+      } else if (filter === 'in-progress') {
+        filtered = allRequests.filter(r => r.status === 'در درست اقدام');
+      } else if (filter === 'closed') {
+        filtered = allRequests.filter(r => r.status === 'انجام');
+      } else if (filter.startsWith('system-')) {
+        const system = filter.replace('system-', '');
+        filtered = allRequests.filter(r => r.system === system);
+      }
+      
+      renderRequestsTable(filtered);
     }
 
     // Logout function
@@ -992,8 +2557,503 @@
       }
     }
 
+
+    // Bulk selection
+    function updateBulkActions() {
+      const selected = document.querySelectorAll('.request-checkbox:checked');
+      const bulkBtn = document.getElementById('bulkActionsBtn');
+      const selectedCount = document.getElementById('selectedCount');
+      
+      selectedCount.textContent = selected.length;
+      bulkBtn.style.display = selected.length > 0 ? 'inline-block' : 'none';
+      
+      // Update select all checkbox
+      const allCheckboxes = document.querySelectorAll('.request-checkbox');
+      const selectAll = document.getElementById('selectAll');
+      if (allCheckboxes.length > 0) {
+        selectAll.checked = selected.length === allCheckboxes.length;
+        selectAll.indeterminate = selected.length > 0 && selected.length < allCheckboxes.length;
+      }
+    }
+
+    // Show bulk actions menu
+    async function showBulkActionsMenu() {
+      const selected = Array.from(document.querySelectorAll('.request-checkbox:checked')).map(cb => cb.getAttribute('data-id'));
+      
+      const { value: action } = await Swal.fire({
+        title: `عملیات گروهی (${selected.length} درخواست)`,
+        html: `
+          <select id="bulk-action" class="swal2-input">
+            <option value="">انتخاب عملیات</option>
+            <option value="status">تغییر وضعیت</option>
+            <option value="priority">تغییر اولویت</option>
+            <option value="assign">اختصاص به کاربر</option>
+          </select>
+          <div id="bulk-options"></div>
+        `,
+        didOpen: () => {
+          document.getElementById('bulk-action').addEventListener('change', function() {
+            const optionsDiv = document.getElementById('bulk-options');
+            if (this.value === 'status') {
+              optionsDiv.innerHTML = '<select id="bulk-value" class="swal2-input"><option value="باز">باز</option><option value="در درست اقدام">در حال اقدام</option><option value="انجام">انجام شده</option></select>';
+            } else if (this.value === 'priority') {
+              optionsDiv.innerHTML = '<select id="bulk-value" class="swal2-input"><option value="کم">کم</option><option value="متوسط">متوسط</option><option value="زیاد">زیاد</option><option value="فوری">فوری</option></select>';
+            } else if (this.value === 'assign') {
+              loadUsersForBulk();
+            } else {
+              optionsDiv.innerHTML = '';
+            }
+          });
+        },
+        showCancelButton: true,
+        confirmButtonText: 'اعمال',
+        cancelButtonText: 'انصراف',
+        preConfirm: () => {
+          const action = document.getElementById('bulk-action').value;
+          const value = document.getElementById('bulk-value')?.value;
+          if (!action) {
+            Swal.showValidationMessage('لطفا یک عملیات انتخاب کنید');
+            return false;
+          }
+          if (!value) {
+            Swal.showValidationMessage('لطفا یک مقدار انتخاب کنید');
+            return false;
+          }
+          return { action, value };
+        }
+      });
+
+      if (action) {
+        await applyBulkAction(selected, action.action, action.value);
+      }
+    }
+
+    function loadUsersForBulk() {
+      fetch(`${API_BASE}/api/users`, { credentials: 'include' })
+        .then(r => r.json())
+        .then(data => {
+          if (data.success && data.users) {
+            const optionsDiv = document.getElementById('bulk-options');
+            let html = '<select id="bulk-value" class="swal2-input"><option value="">انتخاب کاربر</option>';
+            data.users.forEach(user => {
+              html += `<option value="${user._id}">${user.name}</option>`;
+            });
+            html += '</select>';
+            optionsDiv.innerHTML = html;
+          }
+        });
+    }
+
+    async function applyBulkAction(ids, action, value) {
+      try {
+        const updates = {};
+        if (action === 'status') updates.status = value;
+        if (action === 'priority') updates.priority = value;
+        if (action === 'assign') {
+          const user = await fetch(`${API_BASE}/api/users`, { credentials: 'include' }).then(r => r.json());
+          const selectedUser = user.users.find(u => u._id === value);
+          if (selectedUser) {
+            updates.assignedTo = { userId: selectedUser._id, name: selectedUser.name };
+          }
+        }
+
+        const response = await fetch(`${API_BASE}/api/requests/bulk/update`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ ids, updates })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          await Swal.fire({
+            icon: 'success',
+            title: 'موفق!',
+            text: data.message,
+            timer: 2000
+          });
+          
+          // Clear selections
+          document.querySelectorAll('.request-checkbox').forEach(cb => cb.checked = false);
+          document.getElementById('selectAll').checked = false;
+          updateBulkActions();
+          
+          loadRequests();
+        } else {
+          Swal.fire('خطا', data.message, 'error');
+        }
+      } catch (error) {
+        Swal.fire('خطا', 'خطا در اعمال تغییرات', 'error');
+      }
+    }
+
+    // Show request details with comments and attachments
+    async function showRequestDetails(requestId) {
+      try {
+        const response = await fetch(`${API_BASE}/api/requests`, { credentials: 'include' });
+        const requests = await response.json();
+        const request = requests.find(r => r._id === requestId);
+        
+        if (!request) {
+          Swal.fire('خطا', 'درخواست یافت نشد', 'error');
+          return;
+        }
+
+        let html = `
+          <div class="row mb-4">
+            <div class="col-md-12">
+              <h5>اطلاعات درخواست</h5>
+              <table class="table table-bordered">
+                <tr><th>تاریخ</th><td>${moment(request.date).locale('fa').format('YYYY/MM/DD')}</td></tr>
+                <tr><th>مشتری</th><td>${request.customerName}</td></tr>
+                <tr><th>سیستم</th><td>${request.system}</td></tr>
+                <tr><th>درخواست</th><td>${request.request}</td></tr>
+                <tr><th>اولویت</th><td><span class="badge ${getPriorityClass(request.priority)}">${request.priority || 'متوسط'}</span></td></tr>
+                <tr><th>سررسید</th><td>${request.dueDate ? moment(request.dueDate).locale('fa').format('YYYY/MM/DD') : '-'}</td></tr>
+                <tr><th>اختصاص به</th><td>${request.assignedTo?.name || '-'}</td></tr>
+                <tr><th>وضعیت</th><td><span class="badge ${getStatusClass(request.status)}">${request.status}</span></td></tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- Comments Section -->
+          <div class="row mb-4">
+            <div class="col-md-12">
+              <h5><i class="bi bi-chat-dots"></i> نظرات (${request.comments?.length || 0})</h5>
+              <div id="commentsSection">
+                ${renderComments(request.comments || [])}
+              </div>
+              <div class="mt-3">
+                <textarea id="newComment" class="form-control" rows="3" placeholder="نظر خود را بنویسید..."></textarea>
+                <button class="btn btn-primary mt-2" onclick="addComment('${requestId}')">
+                  <i class="bi bi-send"></i> ارسال نظر
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Attachments Section -->
+          <div class="row">
+            <div class="col-md-12">
+              <h5><i class="bi bi-paperclip"></i> پیوست‌ها (${request.attachments?.length || 0})</h5>
+              <div id="attachmentsSection">
+                ${renderAttachments(request.attachments || [])}
+              </div>
+              <div class="mt-3">
+                <input type="file" id="newAttachment" class="form-control" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx,.txt">
+                <button class="btn btn-success mt-2" onclick="uploadAttachment('${requestId}')">
+                  <i class="bi bi-upload"></i> آپلود فایل
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        document.getElementById('detailsModalBody').innerHTML = html;
+        const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+        modal.show();
+      } catch (error) {
+        console.error('Show details error:', error);
+        Swal.fire('خطا', 'خطا در نمایش جزئیات', 'error');
+      }
+    }
+
+    function getPriorityClass(priority) {
+      if (priority === 'فوری') return 'bg-danger';
+      if (priority === 'زیاد') return 'bg-warning';
+      if (priority === 'متوسط') return 'bg-info';
+      if (priority === 'کم') return 'bg-success';
+      return 'bg-secondary';
+    }
+
+    function getStatusClass(status) {
+      if (status === 'باز') return 'bg-danger';
+      if (status === 'در درست اقدام') return 'bg-warning';
+      if (status === 'انجام') return 'bg-success';
+      return 'bg-secondary';
+    }
+
+    function renderComments(comments) {
+      if (!comments || comments.length === 0) {
+        return '<p class="text-muted">هنوز نظری ثبت نشده است</p>';
+      }
+      
+      let html = '<div class="list-group">';
+      comments.forEach(comment => {
+        html += `
+          <div class="list-group-item">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <strong>${comment.createdBy?.name || 'نامشخص'}</strong>
+              <small class="text-muted">${moment(comment.createdAt).locale('fa').fromNow()}</small>
+            </div>
+            <p class="mb-0">${comment.text}</p>
+          </div>
+        `;
+      });
+      html += '</div>';
+      return html;
+    }
+
+    function renderAttachments(attachments) {
+      if (!attachments || attachments.length === 0) {
+        return '<p class="text-muted">هیچ پیوستی وجود ندارد</p>';
+      }
+      
+      let html = '<div class="list-group">';
+      attachments.forEach(file => {
+        const icon = getFileIcon(file.mimetype);
+        html += `
+          <div class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+              <i class="bi bi-${icon}"></i>
+              <strong>${file.originalName}</strong>
+              <small class="text-muted">(${formatFileSize(file.size)})</small>
+            </div>
+            <div>
+              <small class="text-muted">توسط ${file.uploadedBy?.name || 'نامشخص'}</small>
+              <a href="${API_BASE}/uploads/${file.filename}" target="_blank" class="btn btn-sm btn-primary ms-2">
+                <i class="bi bi-download"></i> دانلود
+              </a>
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      return html;
+    }
+
+    function getFileIcon(mimetype) {
+      if (mimetype?.includes('image')) return 'file-image';
+      if (mimetype?.includes('pdf')) return 'file-pdf';
+      if (mimetype?.includes('word')) return 'file-word';
+      if (mimetype?.includes('excel') || mimetype?.includes('spreadsheet')) return 'file-excel';
+      return 'file-earmark';
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    // Add comment
+    async function addComment(requestId) {
+      const commentText = document.getElementById('newComment').value;
+      if (!commentText.trim()) {
+        Swal.fire('خطا', 'لطفا متن نظر را وارد کنید', 'warning');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/api/requests/${requestId}/comments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ comment: commentText })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'نظر شما ثبت شد',
+            showConfirmButton: false,
+            timer: 2000
+          });
+          
+          // Refresh the modal
+          bootstrap.Modal.getInstance(document.getElementById('detailsModal')).hide();
+          setTimeout(() => showRequestDetails(requestId), 300);
+        } else {
+          Swal.fire('خطا', data.message, 'error');
+        }
+      } catch (error) {
+        Swal.fire('خطا', 'خطا در ثبت نظر', 'error');
+      }
+    }
+
+    // Load notifications
+    async function loadNotifications() {
+      try {
+        const response = await fetch(`${API_BASE}/api/notifications`, { credentials: 'include' });
+        const data = await response.json();
+        
+        if (data.success) {
+          const badge = document.getElementById('notificationBadge');
+          if (data.unreadCount > 0) {
+            badge.textContent = data.unreadCount;
+            badge.style.display = 'flex';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      } catch (error) {
+        console.error('Load notifications error:', error);
+      }
+    }
+
+    // Show notifications
+    async function showNotifications() {
+      try {
+        const response = await fetch(`${API_BASE}/api/notifications`, { credentials: 'include' });
+        const data = await response.json();
+        
+        if (!data.success) {
+          Swal.fire('خطا', 'خطا در بارگذاری اعلان‌ها', 'error');
+          return;
+        }
+
+        let html = '';
+        
+        if (data.notifications.length === 0) {
+          html = '<div class="text-center p-4"><i class="bi bi-bell-slash" style="font-size: 3rem; opacity: 0.5;"></i><p class="mt-2 text-muted">اعلانی وجود ندارد</p></div>';
+        } else {
+          html = '<div class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;">';
+          data.notifications.forEach(notif => {
+            const iconMap = {
+              'request_created': 'plus-circle',
+              'request_updated': 'pencil-square',
+              'request_assigned': 'person-check',
+              'request_commented': 'chat-dots',
+              'mention': 'at'
+            };
+            const icon = iconMap[notif.type] || 'info-circle';
+            const readClass = notif.read ? 'opacity-50' : '';
+            
+            html += `
+              <div class="list-group-item ${readClass}" onclick="markNotificationAsRead('${notif._id}')">
+                <div class="d-flex align-items-start">
+                  <i class="bi bi-${icon} me-2 mt-1" style="font-size: 1.2rem;"></i>
+                  <div class="flex-grow-1">
+                    <strong>${notif.title}</strong>
+                    <p class="mb-1 small">${notif.message}</p>
+                    <small class="text-muted">${moment(notif.createdAt).locale('fa').fromNow()}</small>
+                  </div>
+                  ${!notif.read ? '<span class="badge bg-primary">جدید</span>' : ''}
+                </div>
+              </div>
+            `;
+          });
+          html += '</div>';
+          
+          if (data.unreadCount > 0) {
+            html += '<div class="p-2"><button class="btn btn-sm btn-secondary w-100" onclick="markAllNotificationsAsRead()">همه را خوانده شده علامت بزن</button></div>';
+          }
+        }
+
+        Swal.fire({
+          title: `اعلان‌ها ${data.unreadCount > 0 ? `(${data.unreadCount} جدید)` : ''}`,
+          html: html,
+          width: '600px',
+          showConfirmButton: false,
+          showCloseButton: true
+        });
+      } catch (error) {
+        console.error('Show notifications error:', error);
+        Swal.fire('خطا', 'خطا در نمایش اعلان‌ها', 'error');
+      }
+    }
+
+    // Mark notification as read
+    async function markNotificationAsRead(notifId) {
+      try {
+        await fetch(`${API_BASE}/api/notifications/${notifId}/read`, {
+          method: 'PUT',
+          credentials: 'include'
+        });
+        loadNotifications();
+      } catch (error) {
+        console.error('Mark as read error:', error);
+      }
+    }
+
+    // Mark all notifications as read
+    async function markAllNotificationsAsRead() {
+      try {
+        const response = await fetch(`${API_BASE}/api/notifications/read-all`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          loadNotifications();
+          Swal.close();
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'همه اعلان‌ها خوانده شد',
+            showConfirmButton: false,
+            timer: 2000
+          });
+        }
+      } catch (error) {
+        console.error('Mark all as read error:', error);
+      }
+    }
+
+    // Upload attachment
+    async function uploadAttachment(requestId) {
+      const fileInput = document.getElementById('newAttachment');
+      const file = fileInput.files[0];
+      
+      if (!file) {
+        Swal.fire('خطا', 'لطفا یک فایل انتخاب کنید', 'warning');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        Swal.fire({
+          title: 'در حال آپلود...',
+          text: 'لطفا صبر کنید',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+
+        const response = await fetch(`${API_BASE}/api/requests/${requestId}/attachments`, {
+          method: 'POST',
+          credentials: 'include',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          await Swal.fire({
+            icon: 'success',
+            title: 'موفق!',
+            text: data.message,
+            timer: 2000
+          });
+          
+          // Refresh the modal
+          bootstrap.Modal.getInstance(document.getElementById('detailsModal')).hide();
+          setTimeout(() => showRequestDetails(requestId), 300);
+          loadRequests(); // Refresh table to show attachment count
+        } else {
+          Swal.fire('خطا', data.message, 'error');
+        }
+      } catch (error) {
+        Swal.fire('خطا', 'خطا در آپلود فایل', 'error');
+      }
+    }
+
     // Call this after rendering table rows, call this:
     function showHistoryModal(requestId) {
+      // Close any open modals first
+      const openModals = document.querySelectorAll('.modal.show');
+      openModals.forEach(modal => {
+        const instance = bootstrap.Modal.getInstance(modal);
+        if (instance) instance.hide();
+      });
+      
       fetch(`${API_BASE}/api/requests/${requestId}/history`, {
         credentials: 'include'
       }).then(r => r.json()).then(history => {
@@ -1009,6 +3069,9 @@
           request: "درخواست",
           requestType: "نوع درخواست",
           actionDescription: "شرح اقدام",
+          priority: "اولویت",
+          dueDate: "تاریخ سررسید",
+          assignedTo: "اختصاص به",
         };
         if (!history.length) {
           html = '<div class="alert alert-info">هیچ ویرایشی برای این درخواست ثبت نشده است.</div>';
@@ -1019,7 +3082,7 @@
             
             html += `<li class="list-group-item">
               <div class="d-flex justify-content-between align-items-start mb-2">
-                <div><b>زمان:</b> ${new Date(item.timestamp).toLocaleString("fa-IR")}</div>
+                <div><b>زمان:</b> ${moment(item.timestamp).locale('fa').format('YYYY/MM/DD HH:mm')}</div>
                 <div><b>توسط:</b> <span class="badge bg-primary">${modifiedBy}</span></div>
               </div>
               <div><b>تغییرات:</b>
@@ -1033,8 +3096,14 @@
           html += `</ul>`;
         }
         document.getElementById("historyModalBody").innerHTML = html;
-        const modal = new bootstrap.Modal(document.getElementById('historyModal'));
+        
+        // Properly initialize and show the modal
+        const modalElement = document.getElementById('historyModal');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
         modal.show();
+      }).catch(error => {
+        console.error('History modal error:', error);
+        Swal.fire('خطا', 'خطا در بارگذاری تاریخچه', 'error');
       });
     }
   </script>
