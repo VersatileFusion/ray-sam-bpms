@@ -29,6 +29,9 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy for Render (required for sessions with reverse proxy)
+app.set('trust proxy', 1);
+
 // Debug: Check environment variables
 console.log('Environment check:');
 console.log('PORT:', process.env.PORT);
@@ -78,6 +81,7 @@ let sessionStore = null;
 if (process.env.MONGODB_URI) {
   sessionStore = MongoStore.create({
     mongoUrl: process.env.MONGODB_URI,
+    dbName: 'ray-sam',
     touchAfter: 24 * 3600 // lazy session update
   });
 }
@@ -89,9 +93,9 @@ app.use(
     saveUninitialized: false,
     store: sessionStore || undefined,
     cookie: {
-      secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+      secure: true, // HTTPS on Render requires secure cookies
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: 'lax',
+      sameSite: 'lax', // Works with same domain
       httpOnly: true
     },
   })
@@ -244,8 +248,10 @@ async function startServer() {
       console.error("MONGODB_URI environment variable is not set!");
       console.log("Starting server without database connection...");
     } else {
-      await mongoose.connect(process.env.MONGODB_URI);
-      console.log("MongoDB connected");
+      await mongoose.connect(process.env.MONGODB_URI, {
+        dbName: 'ray-sam'
+      });
+      console.log("MongoDB connected to database 'ray-sam'");
       
       // Initialize default users
       await initializeDefaultUsers();
