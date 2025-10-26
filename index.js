@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
 const helmet = require("helmet");
 const compression = require("compression");
 const morgan = require("morgan");
@@ -72,11 +73,18 @@ app.use(
   })
 );
 app.use(express.json());
+// Configure session store
+const sessionStore = MongoStore.create({
+  mongoUrl: process.env.MONGODB_URI,
+  touchAfter: 24 * 3600 // lazy session update
+});
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "your-secret-key",
     resave: false,
     saveUninitialized: false,
+    store: sessionStore,
     cookie: {
       secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
