@@ -54,7 +54,9 @@ app.use(
         "https://ray-sam-bpms.onrender.com",
         "https://ray-sam-bpms.onrender.com/",
         "https://ray-sam-bpms.onrender.com/login.html",
-        "https://ray-sam-bpms.onrender.com/index.html"
+        "https://ray-sam-bpms.onrender.com/index.html",
+        "https://ray-sam.onrender.com",
+        "https://ray-sam.onrender.com/"
       ];
       
       if (allowedOrigins.indexOf(origin) !== -1) {
