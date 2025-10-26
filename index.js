@@ -73,18 +73,21 @@ app.use(
   })
 );
 app.use(express.json());
-// Configure session store
-const sessionStore = MongoStore.create({
-  mongoUrl: process.env.MONGODB_URI,
-  touchAfter: 24 * 3600 // lazy session update
-});
+// Configure session store (only if MongoDB URI is available)
+let sessionStore = null;
+if (process.env.MONGODB_URI) {
+  sessionStore = MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    touchAfter: 24 * 3600 // lazy session update
+  });
+}
 
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "your-secret-key",
     resave: false,
     saveUninitialized: false,
-    store: sessionStore,
+    store: sessionStore || undefined,
     cookie: {
       secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
