@@ -263,13 +263,24 @@ app.get("/login", (req, res) => {
 app.post("/api/auth/login", loginLimiter, async (req, res) => {
   try {
     console.log('Login attempt:', { username: req.body.username, hasPassword: !!req.body.password });
+    console.log('Database connected:', mongoose.connection.readyState === 1);
     
     const { username, password } = req.body;
     
     if (!username || !password) {
+      console.log('Login failed: Missing username or password');
       return res.status(400).json({ 
         success: false, 
         message: "Username and password are required" 
+      });
+    }
+    
+    // Check if database is connected
+    if (mongoose.connection.readyState !== 1) {
+      console.error('Login failed: Database not connected');
+      return res.status(503).json({ 
+        success: false, 
+        message: "Database connection unavailable. Please try again later." 
       });
     }
     
@@ -282,6 +293,7 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
     res.json({ success: true, user });
   } catch (error) {
     console.error('Login error:', error.message);
+    console.error('Full error:', error);
     res.status(401).json({ success: false, message: error.message });
   }
 });
