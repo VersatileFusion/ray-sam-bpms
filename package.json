@@ -10,7 +10,10 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "seed": "node seed-users.js",
-    "seed:force": "node seed-users.js --force"
+    "seed:force": "node seed-users.js --force",
+    "build": "cd frontend && npm install && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "build:all": "npm install && npm run build"
   },
   "keywords": [],
   "author": "",
