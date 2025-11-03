@@ -1133,18 +1133,24 @@ app.delete("/api/clear-requests", requireAuth, async (req, res) => {
 
 // Serve Vue.js SPA - all non-API routes should serve index.html
 // Vue Router will handle client-side routing
-// This must be the LAST route, after all API routes
-app.get('*', (req, res, next) => {
+// This must be the LAST middleware, after all API routes
+app.use((req, res, next) => {
   // Skip API routes
   if (req.path.startsWith('/api')) {
     return next();
   }
-  // Skip static assets
+  // Skip static assets (these are already handled by express.static)
   if (req.path.startsWith('/assets') || req.path.startsWith('/uploads')) {
     return next();
   }
   // Serve index.html for all other routes (Vue Router will handle routing)
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  const indexPath = path.join(__dirname, 'public', 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('Error sending index.html:', err);
+      next(err);
+    }
+  });
 });
 
 // Start the server only if not in test environment
