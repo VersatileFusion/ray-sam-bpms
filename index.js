@@ -7,6 +7,7 @@ const helmet = require("helmet");
 const compression = require("compression");
 const morgan = require("morgan");
 const moment = require("jalali-moment");
+const path = require("path");
 
 // Load environment variables FIRST before any other imports
 dotenv.config({ path: './atlas.envv' });
@@ -236,14 +237,6 @@ app.get("/api/health", async (req, res) => {
 app.use(express.static("public"));
 app.use('/uploads', express.static("uploads"));
 
-// Protect index.html - redirect to login if not authenticated
-app.get("/index.html", (req, res, next) => {
-  if (!req.session.user) {
-    return res.redirect("/login.html");
-  }
-  next();
-});
-
 // MongoDB connection and initialize users
 async function startServer() {
   try {
@@ -306,21 +299,6 @@ async function startServer() {
     });
   }
 }
-
-// Basic route - redirect to login page
-app.get("/", (req, res) => {
-  // Check if user is authenticated
-  if (req.session.user) {
-    res.redirect("/index.html");
-  } else {
-    res.redirect("/login.html");
-  }
-});
-
-// Explicit route for login page
-app.get("/login", (req, res) => {
-  res.redirect("/login.html");
-});
 
 // Authentication routes
 app.post("/api/auth/login", loginLimiter, async (req, res) => {
@@ -1151,6 +1129,22 @@ app.delete("/api/clear-requests", requireAuth, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Error clearing requests", error: error.message });
   }
+});
+
+// Serve Vue.js SPA - all non-API routes should serve index.html
+// Vue Router will handle client-side routing
+// This must be the LAST route, after all API routes
+app.get('*', (req, res, next) => {
+  // Skip API routes
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  // Skip static assets
+  if (req.path.startsWith('/assets') || req.path.startsWith('/uploads')) {
+    return next();
+  }
+  // Serve index.html for all other routes (Vue Router will handle routing)
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Start the server only if not in test environment
