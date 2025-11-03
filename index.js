@@ -8,6 +8,11 @@ const compression = require("compression");
 const morgan = require("morgan");
 const moment = require("jalali-moment");
 
+// Load environment variables FIRST before any other imports
+dotenv.config({ path: './atlas.envv' });
+// Also try loading from .env if atlas.envv doesn't exist
+dotenv.config();
+
 // Import models
 const Request = require("./models/Request");
 const RequestHistory = require("./models/RequestHistory");
@@ -19,11 +24,6 @@ const { sendSMSToAllUsers } = require("./sms");
 // Import middleware
 const { apiLimiter, loginLimiter } = require("./middleware/rateLimiter");
 const upload = require("./middleware/upload");
-
-// Load environment variables
-dotenv.config({ path: './atlas.env' });
-// Also try loading from .env if atlas.env doesn't exist
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -53,7 +53,8 @@ app.use(
       if (!origin) return callback(null, true);
       
       const allowedOrigins = [
-        "http://localhost:3000", 
+        "http://localhost:3000",
+        "http://localhost:5000", // Vite dev server
         "https://ray-sam-bpms.onrender.com",
         "https://ray-sam-bpms.onrender.com/",
         "https://ray-sam-bpms.onrender.com/login.html",
@@ -258,20 +259,49 @@ async function startServer() {
       // Initialize default users
       await initializeDefaultUsers();
       console.log("Default users initialized");
+      
+      // Initialize scheduled reports scheduler
+      const { initializeScheduler } = require('./services/schedulerService');
+      initializeScheduler();
+      console.log("Scheduled reports scheduler initialized");
     }
     
-    // Start the server regardless of MongoDB connection
-    app.listen(PORT, () => {
+    // Initialize email service
+    const { initEmailService } = require('./utils/emailService');
+    initEmailService();
+    
+    // Create HTTP server for Socket.io
+    const httpServer = require('http').createServer(app);
+    
+    // Initialize Socket.io
+    const { initializeSocket } = require('./socket/socketHandler');
+    const io = initializeSocket(httpServer);
+    
+    // Make io available globally
+    app.set('io', io);
+    
+    // Start the server
+    httpServer.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
       console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`MongoDB URI exists: ${!!process.env.MONGODB_URI}`);
+      console.log(`Socket.io initialized`);
     });
   } catch (error) {
     console.error("Error starting server:", error);
     console.log("Starting server without database connection...");
     
+    // Initialize email service even if DB fails
+    const { initEmailService } = require('./utils/emailService');
+    initEmailService();
+    
+    // Create HTTP server for Socket.io
+    const httpServer = require('http').createServer(app);
+    const { initializeSocket } = require('./socket/socketHandler');
+    initializeSocket(httpServer);
+    
     // Start the server even if MongoDB fails
-    app.listen(PORT, () => {
+    httpServer.listen(PORT, () => {
       console.log(`Server running on port ${PORT} (without database)`);
     });
   }
@@ -347,21 +377,8 @@ app.post("/api/auth/logout", async (req, res) => {
   res.json({ success: true, message: "Logged out successfully" });
 });
 
-app.get("/api/auth/me", (req, res) => {
-  console.log('Auth/me check:', {
-    hasSession: !!req.session,
-    hasUser: !!req.session.user,
-    sessionId: req.sessionID,
-    dbConnected: mongoose.connection.readyState === 1,
-    cookies: req.headers.cookie
-  });
-  
-  if (req.session.user) {
-    res.json({ success: true, user: req.session.user });
-  } else {
-    res.status(401).json({ success: false, message: "Not authenticated" });
-  }
-});
+// Removed duplicate route - now handled by routes/auth.js
+// app.get("/api/auth/me", (req, res) => { ... });
 
 
 
@@ -372,6 +389,7 @@ app.post("/api/requests", requireAuth, async (req, res) => {
     const {
       date,
       customerName,
+      customerPhone,
       userName,
       system,
       request,
@@ -390,10 +408,9 @@ app.post("/api/requests", requireAuth, async (req, res) => {
       !system ||
       !request ||
       !requestType ||
-      !actionDescription ||
       !status
     ) {
-      return res.status(400).json({ message: "All fields are required." });
+      return res.status(400).json({ message: "All required fields are missing." });
     }
     // Convert Jalali date to Gregorian before saving
     const gregorianDate = moment
@@ -411,11 +428,12 @@ app.post("/api/requests", requireAuth, async (req, res) => {
     const requestData = {
       date: gregorianDate,
       customerName,
+      customerPhone,
       userName,
       system,
       request,
       requestType,
-      actionDescription,
+      actionDescription: actionDescription || '',
       closeDescription: closeDescription || '',
       status: finalStatus,
       priority: priority || 'متوسط',
@@ -478,7 +496,14 @@ app.post("/api/requests", requireAuth, async (req, res) => {
 // Get all requests
 app.get("/api/requests", requireAuth, async (req, res) => {
   try {
-    const requests = await Request.find().sort({ _id: -1 });
+    // Build query based on user role
+    const query = {};
+    if (req.session.user.role === 'customer') {
+      // Customers can only see their own requests
+      query['createdBy.userId'] = req.session.user._id;
+    }
+    
+    const requests = await Request.find(query).sort({ _id: -1 });
     res.json(requests);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
@@ -489,6 +514,12 @@ app.get("/api/requests", requireAuth, async (req, res) => {
 app.get("/api/requests/search", requireAuth, async (req, res) => {
   try {
     const query = {};
+    
+    // Apply customer filter
+    if (req.session.user.role === 'customer') {
+      query['createdBy.userId'] = req.session.user._id;
+    }
+    
     // For each possible field, add to query if present
     const fields = [
       "date",
@@ -527,6 +558,12 @@ app.put("/api/requests/:id", requireAuth, async (req, res) => {
   try {
     const oldRequest = await Request.findById(req.params.id);
     if (!oldRequest) return res.status(404).json({ message: "Not found" });
+    
+    // Customers are not allowed to edit requests at all
+    if (req.session.user.role === 'customer') {
+      return res.status(403).json({ message: "مشتریان اجازه ویرایش درخواست را ندارند" });
+    }
+    
     const updated = await Request.findByIdAndUpdate(
       req.params.id,
       {
@@ -572,6 +609,28 @@ app.put("/api/requests/:id", requireAuth, async (req, res) => {
   }
 });
 
+// Get a single request by ID
+app.get("/api/requests/:id", requireAuth, async (req, res) => {
+  try {
+    const request = await Request.findById(req.params.id);
+    
+    if (!request) {
+      return res.status(404).json({ message: "درخواست یافت نشد" });
+    }
+    
+    // Check if customer is trying to access someone else's request
+    if (req.session.user.role === 'customer' && 
+        request.createdBy.userId.toString() !== req.session.user._id) {
+      return res.status(403).json({ message: "شما اجازه مشاهده این درخواست را ندارید" });
+    }
+    
+    res.json(request);
+  } catch (error) {
+    console.error(error.stack || error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
 // Get request history
 app.get("/api/requests/:id/history", requireAuth, async (req, res) => {
   try {
@@ -587,6 +646,30 @@ app.get("/api/requests/:id/history", requireAuth, async (req, res) => {
 
 // ========== NEW ENDPOINTS ==========
 
+// Import route modules
+const authRoutes = require('./routes/auth');
+const requestRoutes = require('./routes/requests');
+const userRoutes = require('./routes/users');
+const notificationRoutes = require('./routes/notifications');
+const dashboardRoutes = require('./routes/dashboard');
+const reportRoutes = require('./routes/reports');
+const scheduledReportRoutes = require('./routes/scheduledReports');
+const exportHistoryRoutes = require('./routes/exportHistory');
+const requestTemplateRoutes = require('./routes/requestTemplates');
+
+// Use route modules
+app.use('/api/auth', authRoutes);
+app.use('/api/requests', requestRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/scheduled-reports', scheduledReportRoutes);
+app.use('/api/export-history', exportHistoryRoutes);
+app.use('/api/request-templates', requestTemplateRoutes);
+
+// ========== LEGACY INLINE ROUTES (kept for backward compatibility) ==========
+
 // Get all users
 app.get("/api/users", requireAuth, async (req, res) => {
   try {
@@ -594,6 +677,20 @@ app.get("/api/users", requireAuth, async (req, res) => {
     res.json({ success: true, users });
   } catch (error) {
     console.error('Get users error:', error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// Get user by ID
+app.get("/api/users/:id", requireAuth, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id, { password: 0 });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'کاربر یافت نشد' });
+    }
+    res.json({ success: true, user });
+  } catch (error) {
+    console.error('Get user error:', error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
@@ -610,7 +707,7 @@ app.get("/api/notifications", requireAuth, async (req, res) => {
       read: false
     });
     
-    res.json({ success: true, notifications, unreadCount });
+    res.json({ success: true, data: { notifications, unreadCount } });
   } catch (error) {
     console.error('Get notifications error:', error);
     res.status(500).json({ success: false, message: "Server error" });
@@ -898,6 +995,74 @@ app.put("/api/admin/users/:id", requireAuth, async (req, res) => {
   }
 });
 
+app.delete("/api/admin/users/:id", requireAuth, async (req, res) => {
+  try {
+    if (req.session.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'عدم دسترسی' });
+    }
+    
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'کاربر یافت نشد' });
+    }
+
+    // Don't allow deleting yourself
+    if (user._id.toString() === req.session.user._id) {
+      return res.status(400).json({ success: false, message: 'شما نمی‌توانید خودتان را حذف کنید' });
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+
+    await AuditLog.create({
+      action: 'delete_user',
+      user: { userId: req.session.user._id, username: req.session.user.username, name: req.session.user.name },
+      details: { deletedUserId: user._id, deletedUsername: user.username },
+      ip: req.ip,
+      userAgent: req.get('user-agent')
+    }).catch(err => console.error('Audit log error:', err));
+
+    res.json({ success: true, message: 'کاربر با موفقیت حذف شد' });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+app.post("/api/admin/users/:id/reset-password", requireAuth, async (req, res) => {
+  try {
+    if (req.session.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'عدم دسترسی' });
+    }
+    
+    const { newPassword } = req.body;
+    
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: 'رمز عبور باید حداقل 6 کاراکتر باشد' });
+    }
+
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'کاربر یافت نشد' });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    await AuditLog.create({
+      action: 'update_user',
+      user: { userId: req.session.user._id, username: req.session.user.username, name: req.session.user.name },
+      details: { action: 'password_reset', targetUserId: user._id, targetUsername: user.username },
+      ip: req.ip,
+      userAgent: req.get('user-agent')
+    }).catch(err => console.error('Audit log error:', err));
+
+    res.json({ success: true, message: 'رمز عبور با موفقیت تغییر کرد' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 // ========== END NEW ENDPOINTS ==========
 
 // Seed sample data endpoint (for testing)
@@ -988,6 +1153,11 @@ app.delete("/api/clear-requests", requireAuth, async (req, res) => {
   }
 });
 
-// Start the server
-startServer();
+// Start the server only if not in test environment
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}
+
+// Export app for testing
+module.exports = app;
 

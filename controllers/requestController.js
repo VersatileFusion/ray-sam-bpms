@@ -2,10 +2,13 @@ const Request = require('../models/Request');
 const RequestHistory = require('../models/RequestHistory');
 const Notification = require('../models/Notification');
 const AuditLog = require('../models/AuditLog');
+const User = require('../models/User');
 const { sendSuccess, sendError, sendPaginated } = require('../utils/response');
 const { jalaliToGregorian } = require('../utils/dateHelper');
 const { ERROR_MESSAGES, SUCCESS_MESSAGES, PAGINATION } = require('../config/constants');
-const { sendSMSToAllUsers } = require('../sms');
+const { sendSMSToAllUsers, sendSMSToSingleUser } = require('../sms');
+const activityLogger = require('../utils/activityLogger');
+const { sendAssignmentEmail, sendRequestStatusChangeEmail, sendCommentNotification } = require('../utils/emailService');
 
 // Create request
 exports.createRequest = async (req, res) => {
@@ -13,6 +16,7 @@ exports.createRequest = async (req, res) => {
     const {
       date,
       customerName,
+      customerPhone,
       userName,
       system,
       request,
@@ -31,6 +35,7 @@ exports.createRequest = async (req, res) => {
     const requestData = {
       date: gregorianDate,
       customerName,
+      customerPhone,
       userName,
       system,
       request,
@@ -53,9 +58,9 @@ exports.createRequest = async (req, res) => {
     };
 
     // Add assignment if provided
+    let assignedUser = null;
     if (assignedToId) {
-      const User = require('../models/User');
-      const assignedUser = await User.findById(assignedToId);
+      assignedUser = await User.findById(assignedToId);
       if (assignedUser) {
         requestData.assignedTo = {
           userId: assignedUser._id,
@@ -67,18 +72,44 @@ exports.createRequest = async (req, res) => {
     const newRequest = new Request(requestData);
     const savedRequest = await newRequest.save();
 
-    // Send SMS notification
-    await sendSMSToAllUsers(`درخواست جدید ثبت شد: ${customerName}`);
+    // Send SMS notification to all admins and specialists
+    await sendSMSToAllUsers(`درخواست جدید ثبت شد\nمشتری: ${customerName}\nنوع: ${requestType}\nسیستم: ${system}`);
 
-    // Create notification for assigned user
-    if (assignedToId) {
+    // Create notification and SMS for assigned user
+    if (assignedUser) {
       await Notification.create({
-        user: { userId: assignedToId, name: requestData.assignedTo.name },
+        user: { userId: assignedUser._id, name: assignedUser.name },
         type: 'request_assigned',
         title: 'درخواست جدید برای شما',
         message: `درخواست ${request} به شما اختصاص داده شد`,
         relatedRequest: savedRequest._id
       });
+      
+      // Send SMS to assigned user if they have a phone number
+      if (assignedUser.phone) {
+        await sendSMSToSingleUser(
+          `درخواست جدید به شما اختصاص داده شد\nمشتری: ${customerName}\nنوع: ${requestType}\nسیستم: ${system}`,
+          assignedUser.phone
+        );
+      }
+    }
+
+    // Log activity
+    await activityLogger.created(savedRequest, req.session.user);
+    
+    // Emit socket event
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('request-created', { request: savedRequest });
+      // Also emit to user-specific room if assigned
+      if (assignedUser) {
+        io.to(`user-${assignedUser._id}`).emit('request-assigned', { request: savedRequest });
+      }
+    }
+    
+    // Send email if assigned
+    if (assignedUser) {
+      await sendAssignmentEmail(savedRequest, assignedUser);
     }
 
     // Log audit
@@ -105,9 +136,16 @@ exports.createRequest = async (req, res) => {
 // Get all requests with pagination
 exports.getAllRequests = async (req, res) => {
   try {
+    // Build query based on user role
+    const query = {};
+    if (req.session.user.role === 'customer') {
+      // Customers can only see their own requests
+      query['createdBy.userId'] = req.session.user._id;
+    }
+    
     // If no pagination params, return all (backward compatibility)
     if (!req.query.page && !req.query.limit) {
-      const requests = await Request.find().sort({ _id: -1 });
+      const requests = await Request.find(query).sort({ _id: -1 });
       return res.json(requests);
     }
 
@@ -115,8 +153,8 @@ exports.getAllRequests = async (req, res) => {
     const limit = Math.min(parseInt(req.query.limit) || PAGINATION.DEFAULT_LIMIT, PAGINATION.MAX_LIMIT);
     const skip = (page - 1) * limit;
 
-    const total = await Request.countDocuments();
-    const requests = await Request.find()
+    const total = await Request.countDocuments(query);
+    const requests = await Request.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -133,6 +171,11 @@ exports.searchRequests = async (req, res) => {
   try {
     const query = {};
     const { date, customerName, userName, system, request, requestType, actionDescription, status, priority, assignedTo } = req.query;
+
+    // Apply customer filter
+    if (req.session.user.role === 'customer') {
+      query['createdBy.userId'] = req.session.user._id;
+    }
 
     if (date) query.date = date;
     if (customerName) query.customerName = { $regex: customerName, $options: 'i' };
@@ -160,6 +203,11 @@ exports.updateRequest = async (req, res) => {
     const oldRequest = await Request.findById(req.params.id);
     if (!oldRequest) {
       return sendError(res, ERROR_MESSAGES.REQUEST_NOT_FOUND, 404);
+    }
+
+    // Customers are not allowed to edit requests at all
+    if (req.session.user.role === 'customer') {
+      return sendError(res, 'مشتریان اجازه ویرایش درخواست را ندارند', 403);
     }
 
     // Track changes
@@ -200,6 +248,34 @@ exports.updateRequest = async (req, res) => {
         },
       });
 
+      // Log activity
+      const changesMap = {};
+      changedFields.forEach(cf => {
+        changesMap[cf.field] = { from: cf.oldValue, to: cf.newValue };
+      });
+      await activityLogger.updated(updated, req.session.user, changesMap);
+
+      // Log specific activity types
+      const statusChange = changedFields.find(cf => cf.field === 'status');
+      if (statusChange) {
+        await activityLogger.statusChanged(updated, req.session.user, statusChange.oldValue, statusChange.newValue);
+      }
+
+      const priorityChange = changedFields.find(cf => cf.field === 'priority');
+      if (priorityChange) {
+        await activityLogger.priorityChanged(updated, req.session.user, priorityChange.oldValue, priorityChange.newValue);
+      }
+
+      const assignmentChange = changedFields.find(cf => cf.field === 'assignedTo');
+      if (assignmentChange) {
+        if (assignmentChange.newValue && assignmentChange.newValue.userId) {
+          const assignedUser = await User.findById(assignmentChange.newValue.userId);
+          await activityLogger.assigned(updated, req.session.user, assignedUser);
+        } else if (!assignmentChange.newValue && assignmentChange.oldValue) {
+          await activityLogger.unassigned(updated, req.session.user);
+        }
+      }
+
       // Create notification for request creator if someone else updated
       if (oldRequest.createdBy.userId.toString() !== req.session.user._id) {
         await Notification.create({
@@ -225,10 +301,70 @@ exports.updateRequest = async (req, res) => {
       userAgent: req.get('user-agent')
     });
 
+    // Send SMS if status changed to "انجام" (completed)
+    const statusChangeForSMS = changedFields.find(cf => cf.field === 'status');
+    if (statusChangeForSMS && statusChangeForSMS.newValue === 'انجام' && oldRequest.customerPhone) {
+      await sendSMSToSingleUser(
+        `درخواست شما انجام شد\nموضوع: ${oldRequest.request}\nشماره پیگیری: ${oldRequest._id.toString().slice(-8)}`,
+        oldRequest.customerPhone
+      );
+    }
+
+    // Send SMS if assignedTo changed
+    const assignmentChangeForSMS = changedFields.find(cf => cf.field === 'assignedTo');
+    if (assignmentChangeForSMS && assignmentChangeForSMS.newValue) {
+      // Get the assigned user's phone number
+      const assignedUser = await User.findById(updated.assignedTo?.userId);
+      if (assignedUser && assignedUser.phone) {
+        await sendSMSToSingleUser(
+          `درخواست جدید به شما اختصاص داده شد\nمشتری: ${oldRequest.customerName}\nنوع: ${oldRequest.requestType}\nسیستم: ${oldRequest.system}`,
+          assignedUser.phone
+        );
+      }
+    }
+
+    // Emit socket event for update
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`request-${updated._id}`).emit('request-updated', { 
+        requestId: updated._id,
+        request: updated 
+      });
+    }
+
+    // Send email if status changed
+    const statusChangeForEmail = changedFields.find(cf => cf.field === 'status');
+    if (statusChangeForEmail && statusChangeForEmail.oldValue !== statusChangeForEmail.newValue) {
+      await sendRequestStatusChangeEmail(updated, req.session.user, statusChangeForEmail.oldValue, statusChangeForEmail.newValue);
+    }
+
     // Return old format for backward compatibility
     res.json(updated);
   } catch (error) {
     console.error('Update request error:', error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// Get single request by ID
+exports.getRequestById = async (req, res) => {
+  try {
+    const request = await Request.findById(req.params.id);
+    
+    if (!request) {
+      return sendError(res, ERROR_MESSAGES.REQUEST_NOT_FOUND, 404);
+    }
+    
+    // Check if customer is trying to access someone else's request
+    if (req.session.user.role === 'customer' && 
+        request.createdBy.userId.toString() !== req.session.user._id) {
+      return sendError(res, 'شما اجازه مشاهده این درخواست را ندارید', 403);
+    }
+    
+    // Return old format for backward compatibility
+    res.json(request);
+  } catch (error) {
+    console.error('Get request error:', error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -269,6 +405,23 @@ exports.addComment = async (req, res) => {
 
     await request.save();
 
+    // Log activity
+    await activityLogger.commentAdded(request, req.session.user, comment);
+
+    // Emit socket event
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`request-${request._id}`).emit('request-comment-added', { 
+        requestId: request._id,
+        comment: request.comments[request.comments.length - 1]
+      });
+    }
+
+    // Send email notification
+    if (request.createdBy.userId.toString() !== req.session.user._id) {
+      await sendCommentNotification(request, comment, req.session.user);
+    }
+
     // Notify request creator
     if (request.createdBy.userId.toString() !== req.session.user._id) {
       await Notification.create({
@@ -299,7 +452,7 @@ exports.uploadAttachment = async (req, res) => {
       return sendError(res, ERROR_MESSAGES.REQUEST_NOT_FOUND, 404);
     }
 
-    request.attachments.push({
+    const attachment = {
       filename: req.file.filename,
       originalName: req.file.originalname,
       path: req.file.path,
@@ -310,9 +463,23 @@ exports.uploadAttachment = async (req, res) => {
         name: req.session.user.name
       },
       uploadedAt: new Date()
-    });
+    };
+
+    request.attachments.push(attachment);
 
     await request.save();
+
+    // Log activity
+    await activityLogger.attachmentAdded(request, req.session.user, attachment);
+
+    // Emit socket event
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`request-${request._id}`).emit('request-attachment-added', { 
+        requestId: request._id,
+        attachment
+      });
+    }
 
     // Log audit
     await AuditLog.create({
@@ -338,7 +505,6 @@ exports.uploadAttachment = async (req, res) => {
 exports.assignRequest = async (req, res) => {
   try {
     const { userId } = req.body;
-    const User = require('../models/User');
     
     const request = await Request.findById(req.params.id);
     if (!request) {
@@ -357,6 +523,22 @@ exports.assignRequest = async (req, res) => {
 
     await request.save();
 
+    // Log activity
+    await activityLogger.assigned(request, req.session.user, user);
+
+    // Emit socket event
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`user-${user._id}`).emit('request-assigned', { request });
+      io.to(`request-${request._id}`).emit('request-updated', { 
+        requestId: request._id,
+        request 
+      });
+    }
+
+    // Send email notification
+    await sendAssignmentEmail(request, user);
+
     // Create notification
     await Notification.create({
       user: { userId: user._id, name: user.name },
@@ -365,6 +547,14 @@ exports.assignRequest = async (req, res) => {
       message: `درخواست ${request.request} به شما اختصاص داده شد`,
       relatedRequest: request._id
     });
+
+    // Send SMS to assigned user if they have a phone number
+    if (user.phone) {
+      await sendSMSToSingleUser(
+        `درخواست جدید به شما اختصاص داده شد\nمشتری: ${request.customerName}\nنوع: ${request.requestType}\nسیستم: ${request.system}`,
+        user.phone
+      );
+    }
 
     sendSuccess(res, { request }, 'درخواست با موفقیت اختصاص داده شد');
   } catch (error) {

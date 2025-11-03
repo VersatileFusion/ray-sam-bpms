@@ -1,0 +1,5 @@
+MONGODB_URI=mongodb+srv://EGTC9hiKO4svXNCX:EGTC9hiKO4svXNCX@cluster0.x5wnapy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+PORT=3000
+SMS_API_KEY=xevIdRFFOQQKj6JeiXSHfXZCBpFWqzauoIc3uzQdeePUUe2q
+SMS_LINE_NUMBER=30004802149089
+SMS_RECIPIENTS=09109924707

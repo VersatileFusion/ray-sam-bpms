@@ -4,11 +4,12 @@ const requestSchema = new mongoose.Schema(
   {
     date: { type: String, required: true }, // تاریخ
     customerName: { type: String, required: true }, // نام مشتری
+    customerPhone: { type: String }, // شماره تماس مشتری
     userName: { type: String, required: true }, // نام کاربر
     system: { type: String, required: true }, // سیستم
     request: { type: String, required: true }, // درخواست
     requestType: { type: String, required: true }, // نوع درخواست
-    actionDescription: { type: String, required: true }, // شرح اقدام
+    actionDescription: { type: String, default: '' }, // شرح اقدام
     closeDescription: { type: String }, // شرح بستن درخواست (optional)
     status: {
       type: String,
@@ -59,6 +60,26 @@ const requestSchema = new mongoose.Schema(
       timestamp: { type: Date, default: Date.now }
     },
     createdByUser: { type: String }, // Keep this for backwards compatibility
+    tags: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'RequestTag'
+    }],
+    templateId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'RequestTemplate'
+    },
+    relatedRequests: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Request'
+    }],
+    sla: {
+      responseTime: Number, // hours
+      resolutionTime: Number, // hours
+      responseDeadline: Date,
+      resolutionDeadline: Date,
+      respondedAt: Date,
+      resolvedAt: Date
+    }
   },
   {
     timestamps: true, // Adds createdAt and updatedAt fields
@@ -71,7 +92,7 @@ requestSchema.index({ status: 1 });
 requestSchema.index({ priority: 1 });
 requestSchema.index({ system: 1 });
 requestSchema.index({ customerName: 1 });
-requestSchema.index({ 'createdBy.userId': 1 });
+requestSchema.index({ 'createdBy.userId': 1 }); // Important for customer filtering
 requestSchema.index({ 'assignedTo.userId': 1 });
 requestSchema.index({ dueDate: 1 });
 requestSchema.index({ createdAt: -1 });

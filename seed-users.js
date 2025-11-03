@@ -4,12 +4,18 @@ const User = require('./models/User');
 const fs = require('fs');
 
 // Load environment variables
-dotenv.config({ path: './atlas.env' });
+dotenv.config({ path: './atlas.envv' });
 dotenv.config();
 
 async function seedUsers() {
   try {
     console.log('🌱 Starting database seeding...');
+    
+    // Check for --force flag
+    const forceUpdate = process.argv.includes('--force');
+    if (forceUpdate) {
+      console.log('⚠️  Force update mode: Will update existing users');
+    }
     
     // Connect to MongoDB
     if (!process.env.MONGODB_URI) {
@@ -17,7 +23,9 @@ async function seedUsers() {
       process.exit(1);
     }
     
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(process.env.MONGODB_URI, {
+      dbName: 'ray-sam'
+    });
     console.log('✅ Connected to MongoDB');
     
     // Read users data from JSON file
@@ -29,19 +37,22 @@ async function seedUsers() {
         username: usersData.admin.username,
         password: usersData.admin.password,
         name: usersData.admin.name,
-        role: usersData.admin.role
+        role: usersData.admin.role,
+        phone: usersData.admin.phone
       },
       ...usersData.users.map(u => ({
         username: u.username,
         password: u.password,
         name: u.name,
-        role: u.role
+        role: u.role,
+        phone: u.phone
       })),
       ...usersData.customers.map(c => ({
         username: c.username,
         password: c.password,
         name: c.name,
-        role: c.role
+        role: c.role,
+        phone: c.phone
       }))
     ];
     
@@ -62,15 +73,37 @@ async function seedUsers() {
           username: userData.username,
           password: userData.password,
           name: userData.name,
-          role: userData.role
+          role: userData.role,
+          phone: userData.phone
         });
         
         await user.save();
         console.log(`   ✅ Created: ${userData.username} (${userData.name}) - ${userData.role}`);
         createdCount++;
       } else {
-        console.log(`   ⏭️  Skipped: ${userData.username} (already exists)`);
-        skippedCount++;
+        // Update existing user
+        let updated = false;
+        
+        // Update password if force mode
+        if (forceUpdate && userData.password) {
+          existingUser.password = userData.password;
+          updated = true;
+        }
+        
+        // Update phone if missing or different
+        if (userData.phone && existingUser.phone !== userData.phone) {
+          existingUser.phone = userData.phone;
+          updated = true;
+        }
+        
+        if (updated) {
+          await existingUser.save();
+          console.log(`   🔄 Updated: ${userData.username}${forceUpdate && userData.password ? ' (password updated)' : ''}${userData.phone ? ` (phone: ${userData.phone})` : ''}`);
+          createdCount++;
+        } else {
+          console.log(`   ⏭️  Skipped: ${userData.username} (already exists)`);
+          skippedCount++;
+        }
       }
     }
     
