@@ -3,8 +3,8 @@
     <div class="container mx-auto px-4">
       <div class="flex items-center justify-between h-16">
         <div class="flex items-center space-x-8 space-x-reverse">
-          <router-link to="/" class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:scale-105 transition-transform duration-200">
-            سیستم مدیریت درخواست‌ها
+          <router-link to="/" class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:scale-105 transition-transform duration-200">
+            سیستم مدیریت فرآیند کسب و کار رایسا و سامیار
           </router-link>
           
           <!-- Mobile menu button -->

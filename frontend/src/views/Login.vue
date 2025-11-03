@@ -15,7 +15,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h1 class="text-3xl font-bold text-white mb-2">سیستم مدیریت درخواست‌ها</h1>
+          <h1 class="text-3xl font-bold text-white mb-2">سیستم مدیریت فرآیند کسب و کار رایسا و سامیار</h1>
           <p class="text-white opacity-90">رایسا و سامیار</p>
         </div>
         
@@ -90,8 +90,9 @@
         </form>
       </div>
       
-      <div class="text-center mt-6 text-white text-sm opacity-80 animate-fade-in-down">
-        <p>نسخه 1.0.0 - توسعه‌یافته توسط تیم رایسا</p>
+      <div class="text-center mt-6 text-white text-sm opacity-80 animate-fade-in-down space-y-2">
+        <p>سیستم مدیریت فرآیند کسب و کار رایسا و سامیار</p>
+        <p>نسخه 1.0.0 - توسعه توسط عرفان احمدوند</p>
       </div>
     </div>
   </div>
