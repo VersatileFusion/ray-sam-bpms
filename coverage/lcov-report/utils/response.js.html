@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">60% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>6/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">16.66% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>2/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">66.66% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>2/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">60% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>6/10</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -107,41 +107,41 @@
 <a name='L42'></a><a href='#L42'>42</a>
 <a name='L43'></a><a href='#L43'>43</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -149,15 +149,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// Response helper utilities
 &nbsp;
-const sendSuccess = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(r</span>es, data = <span class="branch-0 cbranch-no" title="branch not covered" >{},</span> message = <span class="branch-0 cbranch-no" title="branch not covered" >'Success',</span> statusCode = <span class="branch-0 cbranch-no" title="branch not covered" >200)</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  res.status(statusCode).json({</span>
+const sendSuccess = (res, data = <span class="branch-0 cbranch-no" title="branch not covered" >{},</span> message = 'Success', statusCode = 200) =&gt; {
+  res.status(statusCode).json({
     success: true,
     message,
     data
   });
 };
 &nbsp;
-const sendError = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(r</span>es, message = <span class="branch-0 cbranch-no" title="branch not covered" >'Error',</span> statusCode = <span class="branch-0 cbranch-no" title="branch not covered" >500,</span> errors = <span class="branch-0 cbranch-no" title="branch not covered" >null)</span> =&gt; {</span>
+const sendError = <span class="fstat-no" title="function not covered" >(r</span>es, message = <span class="branch-0 cbranch-no" title="branch not covered" >'Error',</span> statusCode = <span class="branch-0 cbranch-no" title="branch not covered" >500,</span> errors = <span class="branch-0 cbranch-no" title="branch not covered" >null)</span> =&gt; {
   const response = <span class="cstat-no" title="statement not covered" >{</span>
     success: false,
     message
@@ -170,8 +170,8 @@ const sendError = <span class="cstat-no" title="statement not covered" ><span cl
 <span class="cstat-no" title="statement not covered" >  res.status(statusCode).json(response);</span>
 };
 &nbsp;
-const sendPaginated = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(r</span>es, data = <span class="branch-0 cbranch-no" title="branch not covered" >[],</span> page = <span class="branch-0 cbranch-no" title="branch not covered" >1,</span> limit = <span class="branch-0 cbranch-no" title="branch not covered" >25,</span> total = <span class="branch-0 cbranch-no" title="branch not covered" >0)</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  res.status(200).json({</span>
+const sendPaginated = (res, data = <span class="branch-0 cbranch-no" title="branch not covered" >[],</span> page = <span class="branch-0 cbranch-no" title="branch not covered" >1,</span> limit = <span class="branch-0 cbranch-no" title="branch not covered" >25,</span> total = <span class="branch-0 cbranch-no" title="branch not covered" >0)</span> =&gt; {
+  res.status(200).json({
     success: true,
     data,
     pagination: {
@@ -183,7 +183,7 @@ const sendPaginated = <span class="cstat-no" title="statement not covered" ><spa
   });
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >module.exports = {</span>
+module.exports = {
   sendSuccess,
   sendError,
   sendPaginated
@@ -196,7 +196,7 @@ const sendPaginated = <span class="cstat-no" title="statement not covered" ><spa
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-01T18:51:48.722Z
+                at 2025-11-08T08:20:35.962Z
             </div>
         <script src="../prettify.js"></script>
         <script>

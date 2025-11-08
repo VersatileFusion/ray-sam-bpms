@@ -34,7 +34,24 @@ const PRIORITY_LIST = Object.values(PRIORITY);
 const ROLES = {
   USER: 'user',
   ADMIN: 'admin',
-  CUSTOMER: 'customer'
+  CUSTOMER: 'customer',
+  SPECIALIST: 'specialist'
+};
+
+// Customer Status
+const CUSTOMER_STATUS = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+  PROSPECT: 'prospect'
+};
+
+const CUSTOMER_TIERS = ['standard', 'gold', 'platinum'];
+
+// Specialist Availability
+const SPECIALIST_STATUS = {
+  AVAILABLE: 'available',
+  BUSY: 'busy',
+  AWAY: 'away'
 };
 
 // Request Types
@@ -72,7 +89,8 @@ const ERROR_MESSAGES = {
   USER_NOT_FOUND: 'کاربر یافت نشد',
   USER_INACTIVE: 'حساب کاربری غیرفعال است',
   REQUEST_NOT_FOUND: 'درخواست یافت نشد',
-  RATE_LIMIT_EXCEEDED: 'تعداد درخواست‌ها بیش از حد مجاز است. لطفا بعدا تلاش کنید'
+  RATE_LIMIT_EXCEEDED: 'تعداد درخواست‌ها بیش از حد مجاز است. لطفا بعدا تلاش کنید',
+  CUSTOMER_NOT_FOUND: 'مشتری یافت نشد'
 };
 
 // Success Messages
@@ -84,7 +102,9 @@ const SUCCESS_MESSAGES = {
   REQUEST_DELETED: 'درخواست با موفقیت حذف شد',
   USER_CREATED: 'کاربر با موفقیت ایجاد شد',
   USER_UPDATED: 'کاربر با موفقیت ویرایش شد',
-  PASSWORD_CHANGED: 'رمز عبور با موفقیت تغییر کرد'
+  PASSWORD_CHANGED: 'رمز عبور با موفقیت تغییر کرد',
+  CUSTOMER_CREATED: 'مشتری با موفقیت ایجاد شد',
+  CUSTOMER_UPDATED: 'مشتری با موفقیت ویرایش شد'
 };
 
 // Rate Limiting
@@ -107,6 +127,9 @@ module.exports = {
   PRIORITY,
   PRIORITY_LIST,
   ROLES,
+  CUSTOMER_STATUS,
+  CUSTOMER_TIERS,
+  SPECIALIST_STATUS,
   REQUEST_TYPES,
   PAGINATION,
   ERROR_MESSAGES,

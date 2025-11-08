@@ -15,44 +15,84 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="md:col-span-2 space-y-6">
           <!-- Main Details -->
-          <div class="card">
-            <h2 class="text-xl font-bold text-gray-900 mb-4">اطلاعات درخواست</h2>
-            <div class="space-y-4">
+          <div class="rounded-3xl border border-gray-100 bg-gradient-to-br from-white via-white to-gray-50 p-6 shadow-sm">
+            <header class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <label class="text-sm text-gray-600">تاریخ:</label>
-                <p class="text-gray-900 font-medium">{{ formatDate(request.date) }}</p>
+                <p class="text-xs font-semibold uppercase tracking-widest text-primary-500">اطلاعات درخواست</p>
+                <h2 class="mt-2 text-xl font-extrabold text-gray-900 md:text-2xl">{{ request.requestType || 'درخواست ثبت‌شده' }}</h2>
+                <p class="mt-1 text-sm text-gray-500">
+                  ثبت شده توسط {{ request.userName || 'نامشخص' }} در {{ formatDate(request.createdAt || request.date) }}
+                </p>
               </div>
-              <div>
-                <label class="text-sm text-gray-600">نام مشتری:</label>
-                <p class="text-gray-900 font-medium">{{ request.customerName }}</p>
+              <div class="flex flex-wrap items-center gap-2">
+                <span :class="getStatusBadgeClass(request.status)" class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold">
+                  {{ request.status || 'نامشخص' }}
+                </span>
+                <span class="inline-flex items-center rounded-full border border-amber-100 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-600">
+                  اولویت: {{ request.priority || '—' }}
+                </span>
+                <span class="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
+                  سیستم: {{ request.system || '—' }}
+                </span>
               </div>
-              <div v-if="request.customerPhone">
-                <label class="text-sm text-gray-600">شماره تماس:</label>
-                <p class="text-gray-900 font-medium">{{ request.customerPhone }}</p>
+            </header>
+
+            <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div class="space-y-2 rounded-2xl border border-gray-100 bg-white/70 p-4">
+                <dt class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-slate-600">ت</span>
+                  تاریخ ثبت
+                </dt>
+                <dd class="text-sm font-medium text-gray-900">{{ formatDate(request.date, false) }}</dd>
               </div>
-              <div>
-                <label class="text-sm text-gray-600">نام کاربر:</label>
-                <p class="text-gray-900 font-medium">{{ request.userName }}</p>
+              <div class="space-y-2 rounded-2xl border border-gray-100 bg-white/70 p-4">
+                <dt class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">م</span>
+                  نام مشتری
+                </dt>
+                <dd class="text-sm font-medium text-gray-900">{{ request.customerName || 'نامشخص' }}</dd>
+                <dd v-if="request.customerPhone" class="text-xs text-gray-500">{{ request.customerPhone }}</dd>
               </div>
-              <div>
-                <label class="text-sm text-gray-600">سیستم:</label>
-                <p class="text-gray-900 font-medium">{{ request.system }}</p>
+              <div class="space-y-2 rounded-2xl border border-gray-100 bg-white/70 p-4">
+                <dt class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">ن</span>
+                  نوع درخواست
+                </dt>
+                <dd class="text-sm font-medium text-gray-900">{{ request.requestType || '—' }}</dd>
               </div>
-              <div>
-                <label class="text-sm text-gray-600">نوع درخواست:</label>
-                <p class="text-gray-900 font-medium">{{ request.requestType }}</p>
+              <div class="space-y-2 rounded-2xl border border-gray-100 bg-white/70 p-4">
+                <dt class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-purple-100 text-purple-600">ا</span>
+                  اختصاص داده شده به
+                </dt>
+                <dd class="text-sm font-medium text-gray-900">{{ request.assignedTo?.name || 'اختصاص داده نشده' }}</dd>
+                <dd v-if="request.dueDate" class="text-xs text-gray-500">سررسید: {{ formatDate(request.dueDate) }}</dd>
               </div>
-              <div>
-                <label class="text-sm text-gray-600">درخواست:</label>
-                <p class="text-gray-900">{{ request.request }}</p>
+            </div>
+
+            <div class="mt-6 grid grid-cols-1 gap-4">
+              <div class="space-y-2 rounded-2xl border border-gray-100 bg-white/70 p-4">
+                <dt class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-600">د</span>
+                  شرح درخواست
+                </dt>
+                <dd class="whitespace-pre-wrap text-sm leading-6 text-gray-700">{{ request.request || '—' }}</dd>
               </div>
-              <div>
-                <label class="text-sm text-gray-600">شرح اقدام:</label>
-                <p class="text-gray-900">{{ request.actionDescription }}</p>
-              </div>
-              <div v-if="request.closeDescription">
-                <label class="text-sm text-gray-600">شرح بستن:</label>
-                <p class="text-gray-900">{{ request.closeDescription }}</p>
+              <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div class="space-y-2 rounded-2xl border border-gray-100 bg-white/70 p-4">
+                  <dt class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-green-100 text-green-600">ا</span>
+                    اقدام انجام شده
+                  </dt>
+                  <dd class="whitespace-pre-wrap text-sm leading-6 text-gray-700">{{ request.actionDescription || '—' }}</dd>
+                </div>
+                <div class="space-y-2 rounded-2xl border border-gray-100 bg-white/70 p-4" v-if="request.closeDescription">
+                  <dt class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-rose-100 text-rose-600">ب</span>
+                    نتیجه نهایی
+                  </dt>
+                  <dd class="whitespace-pre-wrap text-sm leading-6 text-gray-700">{{ request.closeDescription }}</dd>
+                </div>
               </div>
             </div>
           </div>
@@ -210,7 +250,7 @@
               </div>
               <div v-if="request.dueDate">
                 <label class="text-sm text-gray-600">تاریخ سررسید:</label>
-                <p class="font-medium">{{ formatDate(request.dueDate) }}</p>
+                <p class="font-medium">{{ formatDate(request.dueDate, false) }}</p>
               </div>
               
               <!-- Assign To -->
@@ -313,11 +353,8 @@
               </div>
               <div>
                 <label class="text-gray-600">آخرین ویرایش:</label>
-                <p class="font-medium">{{ request.lastModifiedBy?.name }}</p>
-              </div>
-              <div>
-                <label class="text-gray-600">آخرین تغییر:</label>
                 <p class="font-medium">{{ formatDate(request.updatedAt) }}</p>
+                <p class="text-xs text-gray-500">{{ formatRelative(request.updatedAt) }}</p>
               </div>
             </div>
           </div>
@@ -414,9 +451,9 @@ const request = computed(() => requestStore.currentRequest)
 const user = computed(() => authStore.user)
 const users = computed(() => userStore.users)
 
-// Filter users to only admins and specialists (not customers)
+// Filter users to only admins, specialists, and internal users (exclude customers)
 const assignableUsers = computed(() => {
-  return users.value.filter(u => u.role === 'admin' || u.role === 'user')
+  return users.value.filter(u => (u.role === 'admin' || u.role === 'user' || u.role === 'specialist') && u.isActive !== false)
 })
 
 const editForm = ref({
@@ -440,18 +477,19 @@ const getStatusBadgeClass = (status) => {
   return classes[status] || 'badge badge-secondary'
 }
 
-const formatDate = (date) => {
+const formatDate = (date, withTime = true) => {
   if (!date) return ''
-  // If it's a Gregorian date string (YYYY-MM-DD or YYYY/MM/DD), convert from Gregorian to Jalali
-  if (typeof date === 'string') {
-    if (/^\d{4}-\d{2}-\d{2}$/.test(date) || /^\d{4}\/\d{2}\/\d{2}$/.test(date)) {
-      // If it's already in YYYY/MM/DD format, convert to YYYY-MM-DD first
-      const normalizedDate = date.includes('-') ? date : date.replace(/\//g, '-')
-      return dateUtils.gregorianToJalali(normalizedDate)
-    }
+  const pattern = withTime ? 'jYYYY/jMM/jDD HH:mm' : 'jYYYY/jMM/jDD'
+  if (typeof date === 'string' && /^\d{4}[-/]\d{2}[-/]\d{2}$/.test(date)) {
+    const normalizedDate = date.replace(/-/g, '/')
+    return withTime ? `${dateUtils.gregorianToJalali(normalizedDate)} 00:00` : dateUtils.gregorianToJalali(normalizedDate)
   }
-  // For Date objects or ISO strings, format with Jalali calendar
-  return dateUtils.formatDate(date, 'jYYYY/jMM/jDD HH:mm')
+  return dateUtils.formatDate(date, pattern)
+}
+
+const formatRelative = (date) => {
+  if (!date) return ''
+  return dateUtils.getRelativeTime(date)
 }
 
 const updateStatus = async () => {

@@ -25,7 +25,7 @@ exports.getRequestActivities = async (req, res) => {
       .sort({ createdAt: -1 })
       .populate('performedBy.userId', 'name username');
     
-    sendSuccess(res, { data: activities });
+    sendSuccess(res, activities);
   } catch (error) {
     console.error('Get activities error:', error);
     sendError(res, ERROR_MESSAGES.SERVER_ERROR);

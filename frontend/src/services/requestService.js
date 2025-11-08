@@ -2,7 +2,14 @@ import api from './api'
 
 export const requestService = {
   async getRequests(params = {}) {
-    const response = await api.get('/requests', { params })
+    const queryParams = { ...params }
+    if (Array.isArray(queryParams.conditions)) {
+      queryParams.conditions = JSON.stringify(queryParams.conditions)
+    }
+    if (queryParams.conditions === '[]') {
+      delete queryParams.conditions
+    }
+    const response = await api.get('/requests', { params: queryParams })
     return response.data
   },
   

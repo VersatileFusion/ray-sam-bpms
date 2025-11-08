@@ -47,6 +47,30 @@ const router = createRouter({
           meta: { requiresAdmin: true }
         },
         {
+          path: '/admin',
+          name: 'AdminDashboard',
+          component: () => import('@/views/admin/AdminDashboard.vue'),
+          meta: { requiresAdmin: true }
+        },
+        {
+          path: '/admin/customers',
+          name: 'CustomerDirectory',
+          component: () => import('@/views/admin/CustomerDirectory.vue'),
+          meta: { requiresAdmin: true }
+        },
+        {
+          path: '/admin/customers/:id',
+          name: 'CustomerDetails',
+          component: () => import('@/views/admin/CustomerDetails.vue'),
+          meta: { requiresAdmin: true }
+        },
+        {
+          path: '/admin/specialists',
+          name: 'SpecialistManagement',
+          component: () => import('@/views/admin/SpecialistManagement.vue'),
+          meta: { requiresAdmin: true }
+        },
+        {
           path: '/profile',
           name: 'Profile',
           component: () => import('@/views/Profile.vue'),

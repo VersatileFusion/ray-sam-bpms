@@ -634,6 +634,8 @@ const reportRoutes = require('./routes/reports');
 const scheduledReportRoutes = require('./routes/scheduledReports');
 const exportHistoryRoutes = require('./routes/exportHistory');
 const requestTemplateRoutes = require('./routes/requestTemplates');
+const customerRoutes = require('./routes/customers');
+const specialistRoutes = require('./routes/specialists');
 
 // Use route modules
 app.use('/api/auth', authRoutes);
@@ -645,6 +647,8 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/scheduled-reports', scheduledReportRoutes);
 app.use('/api/export-history', exportHistoryRoutes);
 app.use('/api/request-templates', requestTemplateRoutes);
+app.use('/api/customers', customerRoutes);
+app.use('/api/specialists', specialistRoutes);
 
 // ========== LEGACY INLINE ROUTES (kept for backward compatibility) ==========
 

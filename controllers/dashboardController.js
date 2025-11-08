@@ -1,7 +1,8 @@
 const Request = require('../models/Request');
 const User = require('../models/User');
+const Customer = require('../models/Customer');
 const { sendSuccess, sendError } = require('../utils/response');
-const { ERROR_MESSAGES } = require('../config/constants');
+const { ERROR_MESSAGES, CUSTOMER_STATUS, ROLES, SPECIALIST_STATUS } = require('../config/constants');
 
 // Get dashboard statistics
 exports.getDashboardStats = async (req, res) => {
@@ -225,4 +226,130 @@ exports.getTrends = async (req, res) => {
 };
 
 module.exports = exports;
+
+// Admin overview
+exports.getAdminOverview = async (req, res) => {
+  try {
+    if (req.session.user.role !== ROLES.ADMIN) {
+      return sendError(res, ERROR_MESSAGES.FORBIDDEN, 403);
+    }
+
+    const [
+      totalCustomers,
+      activeCustomers,
+      prospectCustomers,
+      recentCustomers,
+      specialistUsers,
+      topCustomers
+    ] = await Promise.all([
+      Customer.countDocuments(),
+      Customer.countDocuments({ status: CUSTOMER_STATUS.ACTIVE }),
+      Customer.countDocuments({ status: CUSTOMER_STATUS.PROSPECT }),
+      Customer.find().sort({ createdAt: -1 }).limit(8).select('name companyName status tier createdAt assignedSpecialists'),
+      User.find({ role: ROLES.SPECIALIST }).select('name specialistProfile skills assignedCustomers isActive'),
+      Request.aggregate([
+        {
+          $group: {
+            _id: {
+              $cond: [
+                { $ifNull: ['$customer', false] },
+                '$customer',
+                '$customerName'
+              ]
+            },
+            customerId: { $first: '$customer' },
+            name: { $first: '$customerSnapshot.name' },
+            fallbackName: { $first: '$customerName' },
+            total: { $sum: 1 },
+            open: { $sum: { $cond: [{ $eq: ['$status', 'باز'] }, 1, 0] } },
+            completed: { $sum: { $cond: [{ $eq: ['$status', 'انجام'] }, 1, 0] } }
+          }
+        },
+        { $sort: { total: -1 } },
+        { $limit: 10 }
+      ])
+    ]);
+
+    const specialistSummary = specialistUsers.reduce(
+      (acc, specialist) => {
+        acc.total += 1;
+        if (specialist.isActive !== false) {
+          const status = specialist.specialistProfile?.status || SPECIALIST_STATUS.AVAILABLE;
+          acc.byStatus[status] = (acc.byStatus[status] || 0) + 1;
+
+          const capacity = specialist.specialistProfile?.capacity || 0;
+          const workload = specialist.specialistProfile?.workload || 0;
+          if (capacity > 0) {
+            acc.utilization.push(workload / capacity);
+          }
+        }
+        acc.totalAssignments += specialist.assignedCustomers?.length || 0;
+        return acc;
+      },
+      {
+        total: 0,
+        byStatus: {
+          [SPECIALIST_STATUS.AVAILABLE]: 0,
+          [SPECIALIST_STATUS.BUSY]: 0,
+          [SPECIALIST_STATUS.AWAY]: 0
+        },
+        totalAssignments: 0,
+        utilization: []
+      }
+    );
+
+    const avgUtilization =
+      specialistSummary.utilization.length > 0
+        ? Math.round(
+            (specialistSummary.utilization.reduce((sum, value) => sum + value, 0) /
+              specialistSummary.utilization.length) *
+              100
+          )
+        : 0;
+
+    const formattedTopCustomers = await Promise.all(
+      topCustomers.map(async (item) => {
+        if (item.customerId) {
+          const customerDoc = await Customer.findById(item.customerId).select('name tier status');
+          return {
+            id: customerDoc?._id || item.customerId,
+            name: customerDoc?.name || item.name || item.fallbackName,
+            tier: customerDoc?.tier,
+            status: customerDoc?.status,
+            total: item.total,
+            open: item.open,
+            completed: item.completed
+          };
+        }
+
+        return {
+          id: item._id,
+          name: item.name || item.fallbackName,
+          total: item.total,
+          open: item.open,
+          completed: item.completed
+        };
+      })
+    );
+
+    sendSuccess(res, {
+      customers: {
+        total: totalCustomers,
+        active: activeCustomers,
+        prospect: prospectCustomers,
+        recent: recentCustomers
+      },
+      specialists: {
+        total: specialistSummary.total,
+        byStatus: specialistSummary.byStatus,
+        totalAssignments: specialistSummary.totalAssignments,
+        averageUtilization: avgUtilization
+      },
+      topCustomers: formattedTopCustomers
+    });
+  } catch (error) {
+    console.error('Admin overview error:', error);
+    sendError(res, ERROR_MESSAGES.SERVER_ERROR);
+  }
+};
 

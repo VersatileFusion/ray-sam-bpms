@@ -1,5 +1,8 @@
 import moment from 'moment-jalaali'
 
+moment.locale('fa')
+moment.loadPersian({ usePersianDigits: true, dialect: 'persian-modern' })
+
 export const dateUtils = {
   // Convert Jalali date to Gregorian
   jalaliToGregorian(jalaliDate) {

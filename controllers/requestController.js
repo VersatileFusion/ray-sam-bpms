@@ -3,10 +3,11 @@ const RequestHistory = require('../models/RequestHistory');
 const Notification = require('../models/Notification');
 const AuditLog = require('../models/AuditLog');
 const User = require('../models/User');
+const Customer = require('../models/Customer');
 const { sendSuccess, sendError, sendPaginated } = require('../utils/response');
 const { jalaliToGregorian } = require('../utils/dateHelper');
 const { ERROR_MESSAGES, SUCCESS_MESSAGES, PAGINATION } = require('../config/constants');
-const { sendSMSToAllUsers, sendSMSToSingleUser } = require('../sms');
+const { sendSMSToAllUsers, sendSMSToSingleUser, sendSMSToCustomers } = require('../sms');
 const activityLogger = require('../utils/activityLogger');
 const { sendAssignmentEmail, sendRequestStatusChangeEmail, sendCommentNotification } = require('../utils/emailService');
 
@@ -17,6 +18,7 @@ exports.createRequest = async (req, res) => {
       date,
       customerName,
       customerPhone,
+      customerId,
       userName,
       system,
       request,
@@ -57,6 +59,27 @@ exports.createRequest = async (req, res) => {
       }
     };
 
+    // Attach customer information if provided
+    if (customerId) {
+      const customer = await Customer.findById(customerId).lean();
+      if (customer) {
+        requestData.customer = customer._id;
+        requestData.customerName = customerName || customer.name;
+        requestData.customerSnapshot = {
+          name: customer.name,
+          code: customer.code,
+          tier: customer.tier
+        };
+
+        if (!customerPhone) {
+          const primaryContact = customer.contacts?.find(contact => contact.isPrimary);
+          if (primaryContact?.phone) {
+            requestData.customerPhone = primaryContact.phone;
+          }
+        }
+      }
+    }
+
     // Add assignment if provided
     let assignedUser = null;
     if (assignedToId) {
@@ -73,7 +96,8 @@ exports.createRequest = async (req, res) => {
     const savedRequest = await newRequest.save();
 
     // Send SMS notification to all admins and specialists
-    await sendSMSToAllUsers(`درخواست جدید ثبت شد\nمشتری: ${customerName}\nنوع: ${requestType}\nسیستم: ${system}`);
+    await sendSMSToAllUsers(`درخواست جدید ثبت شد\nمشتری: ${requestData.customerName}\nنوع: ${requestType}\nسیستم: ${system}`);
+    await sendSMSToCustomers(`درخواست جدید ثبت شد\nمشتری: ${requestData.customerName}\nنوع: ${requestType}\nسیستم: ${system}`);
 
     // Create notification and SMS for assigned user
     if (assignedUser) {
@@ -88,7 +112,7 @@ exports.createRequest = async (req, res) => {
       // Send SMS to assigned user if they have a phone number
       if (assignedUser.phone) {
         await sendSMSToSingleUser(
-          `درخواست جدید به شما اختصاص داده شد\nمشتری: ${customerName}\nنوع: ${requestType}\nسیستم: ${system}`,
+          `درخواست جدید به شما اختصاص داده شد\nمشتری: ${requestData.customerName}\nنوع: ${requestType}\nسیستم: ${system}`,
           assignedUser.phone
         );
       }
@@ -120,7 +144,7 @@ exports.createRequest = async (req, res) => {
         username: req.session.user.username,
         name: req.session.user.name
       },
-      details: { requestId: savedRequest._id, customerName },
+      details: { requestId: savedRequest._id, customerName: requestData.customerName },
       ip: req.ip,
       userAgent: req.get('user-agent')
     });
@@ -136,33 +160,163 @@ exports.createRequest = async (req, res) => {
 // Get all requests with pagination
 exports.getAllRequests = async (req, res) => {
   try {
-    // Build query based on user role
-    const query = {};
+    const {
+      page,
+      limit,
+      sort = '-createdAt',
+      fullText,
+      status,
+      system,
+      priority,
+      customerName,
+      assignedTo,
+      conditions: rawConditions
+    } = req.query;
+
+    const buildClause = (condition = {}) => {
+      const { field, operator = 'eq', value } = condition;
+      if (!field || value === undefined || value === null || value === '') {
+        return null;
+      }
+
+      const fieldMap = {
+        customerName: 'customerName',
+        status: 'status',
+        system: 'system',
+        priority: 'priority',
+        assignedTo: 'assignedTo.name',
+      };
+
+      const resolvedField = fieldMap[field] || field;
+      const escapedValue = typeof value === 'string' ? value.trim() : value;
+
+      switch (operator) {
+        case 'eq':
+          return { [resolvedField]: escapedValue };
+        case 'neq':
+          return { [resolvedField]: { $ne: escapedValue } };
+        case 'contains':
+          return {
+            [resolvedField]: {
+              $regex: escapedValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+              $options: 'i',
+            },
+          };
+        case 'startsWith':
+          return {
+            [resolvedField]: {
+              $regex: `^${escapedValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`,
+              $options: 'i',
+            },
+          };
+        default:
+          return { [resolvedField]: escapedValue };
+      }
+    };
+
+    const parseSort = (value) => {
+      if (!value) return { createdAt: -1 };
+      const sortFields = Array.isArray(value) ? value : value.split(',');
+      return sortFields.reduce((acc, field) => {
+        const trimmed = field.trim();
+        if (!trimmed) return acc;
+        if (trimmed.startsWith('-')) {
+          acc[trimmed.substring(1)] = -1;
+        } else if (trimmed.startsWith('+')) {
+          acc[trimmed.substring(1)] = 1;
+        } else {
+          acc[trimmed] = 1;
+        }
+        return acc;
+      }, {});
+    };
+
+    const baseClauses = [];
+
     if (req.session.user.role === 'customer') {
-      // Customers can only see their own requests
-      query['createdBy.userId'] = req.session.user._id;
+      baseClauses.push({ 'createdBy.userId': req.session.user._id });
     }
-    
-    // If no pagination params, return all (backward compatibility)
-    if (!req.query.page && !req.query.limit) {
-      const requests = await Request.find(query).sort({ _id: -1 });
-      return res.json(requests);
+    if (status) baseClauses.push({ status });
+    if (system) baseClauses.push({ system });
+    if (priority) baseClauses.push({ priority });
+    if (customerName) {
+      baseClauses.push({ customerName: { $regex: customerName, $options: 'i' } });
+    }
+    if (assignedTo) {
+      baseClauses.push({ 'assignedTo.userId': assignedTo });
     }
 
-    const page = parseInt(req.query.page) || PAGINATION.DEFAULT_PAGE;
-    const limit = Math.min(parseInt(req.query.limit) || PAGINATION.DEFAULT_LIMIT, PAGINATION.MAX_LIMIT);
-    const skip = (page - 1) * limit;
+    let parsedConditions = [];
+    if (rawConditions) {
+      try {
+        parsedConditions = typeof rawConditions === 'string' ? JSON.parse(rawConditions) : rawConditions;
+        if (!Array.isArray(parsedConditions)) {
+          parsedConditions = [];
+        }
+      } catch (err) {
+        parsedConditions = [];
+      }
+    }
 
-    const total = await Request.countDocuments(query);
-    const requests = await Request.find(query)
-      .sort({ createdAt: -1 })
+    if (parsedConditions.length) {
+      const groupedClauses = [];
+      parsedConditions.forEach((condition, index) => {
+        const clause = buildClause(condition);
+        if (!clause) return;
+
+        if (index === 0) {
+          groupedClauses.push(clause);
+        } else {
+          const prevLogic = parsedConditions[index - 1]?.logic || 'AND';
+          if (prevLogic.toUpperCase() === 'OR' && groupedClauses.length) {
+            const previous = groupedClauses.pop();
+            groupedClauses.push({ $or: [previous, clause] });
+          } else {
+            groupedClauses.push(clause);
+          }
+        }
+      });
+
+      if (groupedClauses.length) {
+        baseClauses.push(...groupedClauses);
+      }
+    }
+
+    const mongoQuery = {};
+    if (fullText) {
+      mongoQuery.$text = { $search: fullText }; // Requires text index
+    }
+    if (baseClauses.length) {
+      mongoQuery.$and = baseClauses;
+    }
+
+    const parsedSort = parseSort(sort);
+    const projection = fullText ? { score: { $meta: 'textScore' } } : undefined;
+    const sortOptions = fullText
+      ? { score: { $meta: 'textScore' }, createdAt: -1 }
+      : parsedSort && Object.keys(parsedSort).length ? parsedSort : { createdAt: -1 };
+
+    const numericLimit = Math.min(parseInt(limit, 10) || PAGINATION.DEFAULT_LIMIT, PAGINATION.MAX_LIMIT);
+    const numericPage = parseInt(page, 10) || PAGINATION.DEFAULT_PAGE;
+    const skip = (numericPage - 1) * numericLimit;
+
+    if (!page && !limit) {
+      const results = await Request.find(mongoQuery, projection)
+        .sort(sortOptions)
+        .limit(PAGINATION.MAX_LIMIT);
+      return res.json(results);
+    }
+
+    const total = await Request.countDocuments(mongoQuery);
+    const requests = await Request.find(mongoQuery, projection)
+      .sort(sortOptions)
       .skip(skip)
-      .limit(limit);
+      .limit(numericLimit);
 
-    sendPaginated(res, requests, page, limit, total);
+    sendPaginated(res, requests, numericPage, numericLimit, total);
   } catch (error) {
     console.error('Get requests error:', error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
@@ -208,6 +362,28 @@ exports.updateRequest = async (req, res) => {
     // Customers are not allowed to edit requests at all
     if (req.session.user.role === 'customer') {
       return sendError(res, 'مشتریان اجازه ویرایش درخواست را ندارند', 403);
+    }
+
+    // Handle customer relationship updates
+    if (req.body.customerId) {
+      const customer = await Customer.findById(req.body.customerId).lean();
+      if (customer) {
+        req.body.customer = customer._id;
+        req.body.customerName = req.body.customerName || customer.name;
+        req.body.customerSnapshot = {
+          name: customer.name,
+          code: customer.code,
+          tier: customer.tier
+        };
+
+        if (!req.body.customerPhone) {
+          const primaryContact = customer.contacts?.find(contact => contact.isPrimary);
+          if (primaryContact?.phone) {
+            req.body.customerPhone = primaryContact.phone;
+          }
+        }
+      }
+      delete req.body.customerId;
     }
 
     // Track changes

@@ -3,7 +3,13 @@ const mongoose = require("mongoose");
 const requestSchema = new mongoose.Schema(
   {
     date: { type: String, required: true }, // تاریخ
+    customer: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer' },
     customerName: { type: String, required: true }, // نام مشتری
+    customerSnapshot: {
+      name: { type: String },
+      code: { type: String },
+      tier: { type: String }
+    },
     customerPhone: { type: String }, // شماره تماس مشتری
     userName: { type: String, required: true }, // نام کاربر
     system: { type: String, required: true }, // سیستم
@@ -92,9 +98,18 @@ requestSchema.index({ status: 1 });
 requestSchema.index({ priority: 1 });
 requestSchema.index({ system: 1 });
 requestSchema.index({ customerName: 1 });
+requestSchema.index({ customer: 1 });
 requestSchema.index({ 'createdBy.userId': 1 }); // Important for customer filtering
 requestSchema.index({ 'assignedTo.userId': 1 });
 requestSchema.index({ dueDate: 1 });
 requestSchema.index({ createdAt: -1 });
+requestSchema.index({
+  request: 'text',
+  actionDescription: 'text',
+  customerName: 'text',
+  userName: 'text',
+  closeDescription: 'text',
+  'comments.text': 'text'
+});
 
 module.exports = mongoose.model("Request", requestSchema);

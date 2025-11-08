@@ -6,7 +6,14 @@ const { ERROR_MESSAGES, SUCCESS_MESSAGES } = require('../config/constants');
 // Get all users
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({}, { password: 0 }).sort({ name: 1 });
+    const filters = {};
+    if (req.query.role) {
+      filters.role = req.query.role;
+    }
+    if (typeof req.query.isActive !== 'undefined') {
+      filters.isActive = req.query.isActive === 'true';
+    }
+    const users = await User.find(filters, { password: 0 }).sort({ name: 1 });
     sendSuccess(res, { users });
   } catch (error) {
     console.error('Get users error:', error);
@@ -31,7 +38,20 @@ exports.getUserById = async (req, res) => {
 // Create user (admin only)
 exports.createUser = async (req, res) => {
   try {
-    const { username, password, name, role = 'user' } = req.body;
+    const {
+      username,
+      password,
+      name,
+      role = 'user',
+      email,
+      phone,
+      jobTitle,
+      department,
+      tags,
+      skills,
+      specialistProfile,
+      isActive
+    } = req.body;
 
     // Check if username exists
     const existingUser = await User.findOne({ username });
@@ -43,8 +63,19 @@ exports.createUser = async (req, res) => {
       username,
       password,
       name,
-      role
+      role,
+      email,
+      phone,
+      jobTitle,
+      department,
+      tags,
+      skills,
+      isActive: typeof isActive === 'boolean' ? isActive : true
     });
+
+    if (specialistProfile) {
+      user.specialistProfile = specialistProfile;
+    }
 
     await user.save();
 
@@ -74,16 +105,28 @@ exports.createUser = async (req, res) => {
 // Update user (admin only)
 exports.updateUser = async (req, res) => {
   try {
-    const { name, role, isActive } = req.body;
+    const { name, role, isActive, email, phone, jobTitle, department, tags, skills, specialistProfile } = req.body;
     
     const user = await User.findById(req.params.id);
     if (!user) {
       return sendError(res, ERROR_MESSAGES.USER_NOT_FOUND, 404);
     }
 
-    if (name) user.name = name;
+    if (name !== undefined) user.name = name;
     if (role) user.role = role;
     if (typeof isActive !== 'undefined') user.isActive = isActive;
+    if (email !== undefined) user.email = email;
+    if (phone !== undefined) user.phone = phone;
+    if (jobTitle !== undefined) user.jobTitle = jobTitle;
+    if (department !== undefined) user.department = department;
+    if (tags !== undefined) user.tags = tags;
+    if (skills !== undefined) user.skills = skills;
+    if (specialistProfile) {
+      user.specialistProfile = {
+        ...user.specialistProfile?.toObject?.(),
+        ...specialistProfile
+      };
+    }
 
     await user.save();
 

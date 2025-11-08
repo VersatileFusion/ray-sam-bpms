@@ -15,8 +15,9 @@ export const useUserStore = defineStore('users', {
       try {
         const response = await userService.getUsers()
         if (response.success) {
-          // Backend returns { success: true, users: [...] }
-          this.users = response.users || []
+          this.users = response.data?.users || []
+        } else {
+          this.error = response.message || 'خطا در دریافت کاربران'
         }
         return response
       } catch (error) {
@@ -34,6 +35,8 @@ export const useUserStore = defineStore('users', {
         const response = await userService.createUser(data)
         if (response.success) {
           await this.fetchUsers()
+        } else {
+          this.error = response.message || 'خطا در ایجاد کاربر'
         }
         return response
       } catch (error) {
@@ -51,6 +54,8 @@ export const useUserStore = defineStore('users', {
         const response = await userService.updateUser(id, data)
         if (response.success) {
           await this.fetchUsers()
+        } else {
+          this.error = response.message || 'خطا در ویرایش کاربر'
         }
         return response
       } catch (error) {
@@ -68,6 +73,8 @@ export const useUserStore = defineStore('users', {
         const response = await userService.deleteUser(id)
         if (response.success) {
           await this.fetchUsers()
+        } else {
+          this.error = response.message || 'خطا در حذف کاربر'
         }
         return response
       } catch (error) {
@@ -81,6 +88,9 @@ export const useUserStore = defineStore('users', {
     async resetPassword(id, newPassword) {
       try {
         const response = await userService.resetPassword(id, newPassword)
+        if (!response.success) {
+          this.error = response.message || 'خطا در تغییر رمز عبور'
+        }
         return response
       } catch (error) {
         this.error = error.response?.data?.message || 'خطا در تغییر رمز عبور'

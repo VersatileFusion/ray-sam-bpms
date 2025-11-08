@@ -1,5 +1,5 @@
 const { body, query, param, validationResult } = require('express-validator');
-const { SYSTEM_LIST, STATUS_LIST, PRIORITY_LIST } = require('../config/constants');
+const { SYSTEM_LIST, STATUS_LIST, PRIORITY_LIST, CUSTOMER_STATUS, CUSTOMER_TIERS, SPECIALIST_STATUS, ROLES } = require('../config/constants');
 
 // Validation middleware to check for errors
 const validate = (req, res, next) => {
@@ -32,7 +32,12 @@ const validateLogin = [
 // Create request validation
 const validateCreateRequest = [
   body('date').notEmpty().withMessage('تاریخ الزامی است'),
-  body('customerName').trim().notEmpty().withMessage('نام مشتری الزامی است'),
+  body('customerId').optional().isMongoId().withMessage('شناسه مشتری نامعتبر است'),
+  body('customerName')
+    .if(body('customerId').not().exists())
+    .trim()
+    .notEmpty()
+    .withMessage('نام مشتری الزامی است'),
   body('userName').trim().notEmpty().withMessage('نام کاربر الزامی است'),
   body('system')
     .notEmpty().withMessage('سیستم الزامی است')
@@ -45,12 +50,14 @@ const validateCreateRequest = [
     .isIn(STATUS_LIST).withMessage('وضعیت نامعتبر است'),
   body('priority').optional().isIn(PRIORITY_LIST).withMessage('اولویت نامعتبر است'),
   body('dueDate').optional().isISO8601().withMessage('تاریخ سررسید نامعتبر است'),
+  body('assignedToId').optional().isMongoId().withMessage('شناسه کاربر نامعتبر است'),
   validate
 ];
 
 // Update request validation
 const validateUpdateRequest = [
   param('id').isMongoId().withMessage('شناسه نامعتبر است'),
+  body('customerId').optional().isMongoId().withMessage('شناسه مشتری نامعتبر است'),
   body('system').optional().isIn(SYSTEM_LIST).withMessage('سیستم نامعتبر است'),
   body('status').optional().isIn(STATUS_LIST).withMessage('وضعیت نامعتبر است'),
   body('priority').optional().isIn(PRIORITY_LIST).withMessage('اولویت نامعتبر است'),
@@ -73,7 +80,7 @@ const validateCreateUser = [
     .notEmpty().withMessage('نام الزامی است'),
   body('role')
     .optional()
-    .isIn(['user', 'admin']).withMessage('نقش نامعتبر است'),
+    .isIn(Object.values(ROLES)).withMessage('نقش نامعتبر است'),
   validate
 ];
 
@@ -90,6 +97,39 @@ const validateComment = [
   validate
 ];
 
+// Create customer validation
+const validateCreateCustomer = [
+  body('name').trim().notEmpty().withMessage('نام مشتری الزامی است'),
+  body('status').optional().isIn(Object.values(CUSTOMER_STATUS)).withMessage('وضعیت مشتری نامعتبر است'),
+  body('tier').optional().isIn(CUSTOMER_TIERS).withMessage('سطح مشتری نامعتبر است'),
+  body('contacts').optional().isArray().withMessage('لیست مخاطبین نامعتبر است'),
+  body('contacts.*.email').optional().isEmail().withMessage('ایمیل نامعتبر است'),
+  body('contacts.*.userId').optional().isMongoId().withMessage('شناسه کاربر نامعتبر است'),
+  body('assignedSpecialists').optional().isArray().withMessage('لیست متخصصین نامعتبر است'),
+  body('assignedSpecialists.*').optional().isMongoId().withMessage('شناسه متخصص نامعتبر است'),
+  validate
+];
+
+const validateUpdateCustomer = [
+  param('id').isMongoId().withMessage('شناسه مشتری نامعتبر است'),
+  body('status').optional().isIn(Object.values(CUSTOMER_STATUS)).withMessage('وضعیت مشتری نامعتبر است'),
+  body('tier').optional().isIn(CUSTOMER_TIERS).withMessage('سطح مشتری نامعتبر است'),
+  body('contacts').optional().isArray().withMessage('لیست مخاطبین نامعتبر است'),
+  body('contacts.*.email').optional().isEmail().withMessage('ایمیل نامعتبر است'),
+  body('contacts.*.userId').optional().isMongoId().withMessage('شناسه کاربر نامعتبر است'),
+  body('assignedSpecialists').optional().isArray().withMessage('لیست متخصصین نامعتبر است'),
+  body('assignedSpecialists.*').optional().isMongoId().withMessage('شناسه متخصص نامعتبر است'),
+  validate
+];
+
+const validateSpecialistProfile = [
+  param('id').isMongoId().withMessage('شناسه کاربر نامعتبر است'),
+  body('specialistProfile').isObject().withMessage('اطلاعات متخصص نامعتبر است'),
+  body('specialistProfile.status').optional().isIn(Object.values(SPECIALIST_STATUS)).withMessage('وضعیت متخصص نامعتبر است'),
+  body('specialistProfile.capacity').optional().isInt({ min: 0 }).withMessage('ظرفیت نامعتبر است'),
+  validate
+];
+
 module.exports = {
   validate,
   validateLogin,
@@ -97,6 +137,9 @@ module.exports = {
   validateUpdateRequest,
   validateCreateUser,
   validatePagination,
-  validateComment
+  validateComment,
+  validateCreateCustomer,
+  validateUpdateCustomer,
+  validateSpecialistProfile
 };
 

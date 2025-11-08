@@ -7,42 +7,47 @@ export const useRequestStore = defineStore('requests', {
     currentRequest: null,
     loading: false,
     error: null,
-    filters: {
-      status: '',
-      system: '',
-      priority: '',
-      date: '',
-    },
+    pagination: null,
+    lastParams: {},
+    pendingUpdates: {},
   }),
   
   getters: {
-    filteredRequests: (state) => {
-      let result = state.requests
-      
-      if (state.filters.status) {
-        result = result.filter(r => r.status === state.filters.status)
-      }
-      if (state.filters.system) {
-        result = result.filter(r => r.system === state.filters.system)
-      }
-      if (state.filters.priority) {
-        result = result.filter(r => r.priority === state.filters.priority)
-      }
-      
-      return result
-    },
+    hasResults: (state) => state.requests.length > 0,
   },
   
   actions: {
-    async fetchRequests() {
+    async fetchRequests(params = {}) {
       this.loading = true
       this.error = null
       try {
-        const data = await requestService.getRequests()
-        this.requests = data
-        return data
+        this.lastParams = { ...params }
+        const response = await requestService.getRequests(params)
+        if (Array.isArray(response)) {
+          this.requests = response
+          this.pagination = null
+          return response
+        }
+
+        if (response?.success && Array.isArray(response.data)) {
+          this.requests = response.data
+          this.pagination = response.pagination || null
+          return response.data
+        }
+
+        if (Array.isArray(response?.data)) {
+          this.requests = response.data
+          this.pagination = response.pagination || null
+          return response.data
+        }
+
+        this.requests = []
+        this.pagination = null
+        return []
       } catch (error) {
         this.error = error.response?.data?.message || 'خطا در دریافت درخواست‌ها'
+        this.requests = []
+        this.pagination = null
         throw error
       } finally {
         this.loading = false
@@ -69,7 +74,7 @@ export const useRequestStore = defineStore('requests', {
       this.error = null
       try {
         const response = await requestService.createRequest(data)
-        await this.fetchRequests()
+        await this.fetchRequests(this.lastParams)
         return response
       } catch (error) {
         this.error = error.response?.data?.message || 'خطا در ثبت درخواست'
@@ -82,18 +87,33 @@ export const useRequestStore = defineStore('requests', {
     async updateRequest(id, data) {
       this.loading = true
       this.error = null
+      const previous = { current: this.currentRequest ? { ...this.currentRequest } : null, list: [...this.requests] }
+      const optimistic = { ...data, _id: id }
+      const listIndex = this.requests.findIndex((r) => r._id === id)
+      if (listIndex !== -1) {
+        this.requests.splice(listIndex, 1, { ...this.requests[listIndex], ...optimistic })
+      }
+      if (this.currentRequest?._id === id) {
+        this.currentRequest = { ...this.currentRequest, ...optimistic }
+      }
+      this.pendingUpdates[id] = true
       try {
         const response = await requestService.updateRequest(id, data)
-        await this.fetchRequests()
+        await this.fetchRequests(this.lastParams)
         if (this.currentRequest?._id === id) {
-          this.currentRequest = { ...this.currentRequest, ...data }
+          this.currentRequest = response
         }
         return response
       } catch (error) {
+        this.requests = previous.list
+        if (previous.current) {
+          this.currentRequest = previous.current
+        }
         this.error = error.response?.data?.message || 'خطا در ویرایش درخواست'
         throw error
       } finally {
         this.loading = false
+        delete this.pendingUpdates[id]
       }
     },
     
@@ -112,13 +132,33 @@ export const useRequestStore = defineStore('requests', {
     },
     
     async assignRequest(id, userId) {
+      const previous = { list: [...this.requests], current: this.currentRequest ? { ...this.currentRequest } : null }
+      const assignedTo = previous.list.find((r) => r._id === id)?.assignedTo || null
+      const optimisticAssigned = { assignedTo: { userId, name: '—' } }
+      const listIndex = this.requests.findIndex((r) => r._id === id)
+      if (listIndex !== -1) {
+        this.requests.splice(listIndex, 1, { ...this.requests[listIndex], ...optimisticAssigned })
+      }
+      if (this.currentRequest?._id === id) {
+        this.currentRequest = { ...this.currentRequest, ...optimisticAssigned }
+      }
+      this.pendingUpdates[id] = true
       try {
         const response = await requestService.assignRequest(id, userId)
-        await this.fetchRequests()
+        await this.fetchRequests(this.lastParams)
+        if (this.currentRequest?._id === id) {
+          this.currentRequest = { ...this.currentRequest, assignedTo: response?.request?.assignedTo || response?.assignedTo || assignedTo }
+        }
         return response
       } catch (error) {
+        this.requests = previous.list
+        if (previous.current) {
+          this.currentRequest = previous.current
+        }
         this.error = error.response?.data?.message || 'خطا در اختصاص درخواست'
         throw error
+      } finally {
+        delete this.pendingUpdates[id]
       }
     },
     
@@ -149,19 +189,6 @@ export const useRequestStore = defineStore('requests', {
       } catch (error) {
         this.error = error.response?.data?.message || 'خطا در آپلود فایل'
         throw error
-      }
-    },
-    
-    setFilters(filters) {
-      this.filters = { ...this.filters, ...filters }
-    },
-    
-    clearFilters() {
-      this.filters = {
-        status: '',
-        system: '',
-        priority: '',
-        date: '',
       }
     },
   },

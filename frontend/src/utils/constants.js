@@ -44,12 +44,46 @@ export const ROLES = {
   USER: 'user',
   ADMIN: 'admin',
   CUSTOMER: 'customer',
+  SPECIALIST: 'specialist',
 }
 
 export const ROLE_LABELS = {
   [ROLES.USER]: 'کاربر',
   [ROLES.ADMIN]: 'مدیر',
   [ROLES.CUSTOMER]: 'مشتری',
+  [ROLES.SPECIALIST]: 'متخصص',
+}
+
+export const CUSTOMER_STATUS = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+  PROSPECT: 'prospect',
+}
+
+export const CUSTOMER_STATUS_LABELS = {
+  [CUSTOMER_STATUS.ACTIVE]: 'فعال',
+  [CUSTOMER_STATUS.INACTIVE]: 'غیرفعال',
+  [CUSTOMER_STATUS.PROSPECT]: 'فرصت',
+}
+
+export const CUSTOMER_TIERS = ['standard', 'gold', 'platinum']
+
+export const CUSTOMER_TIER_LABELS = {
+  standard: 'استاندارد',
+  gold: 'طلایی',
+  platinum: 'پلاتینیوم',
+}
+
+export const SPECIALIST_STATUS = {
+  AVAILABLE: 'available',
+  BUSY: 'busy',
+  AWAY: 'away',
+}
+
+export const SPECIALIST_STATUS_LABELS = {
+  [SPECIALIST_STATUS.AVAILABLE]: 'آماده به کار',
+  [SPECIALIST_STATUS.BUSY]: 'مشغول',
+  [SPECIALIST_STATUS.AWAY]: 'غایب',
 }
 
 export const PRIORITY_COLORS = {
@@ -75,6 +109,12 @@ export default {
   REQUEST_TYPES,
   ROLES,
   ROLE_LABELS,
+  CUSTOMER_STATUS,
+  CUSTOMER_STATUS_LABELS,
+  CUSTOMER_TIERS,
+  CUSTOMER_TIER_LABELS,
+  SPECIALIST_STATUS,
+  SPECIALIST_STATUS_LABELS,
   PRIORITY_COLORS,
   STATUS_COLORS,
 }
